@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Common\logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aircraft\BaseAircraft.cpp">
+      <Filter>Source Files\Aircraft</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aircraft\EadtX737.cpp">
+      <Filter>Source Files\Aircraft</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aircraft\LaminarB738.cpp">
+      <Filter>Source Files\Aircraft</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aircraft\LaminarB744.cpp">
+      <Filter>Source Files\Aircraft</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aircraft\SsgB748.cpp">
+      <Filter>Source Files\Aircraft</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aircraft\ZiboB738.cpp">
+      <Filter>Source Files\Aircraft</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VRiCommPort.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\XVrII.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hardware\BaseDeviceHandler.cpp">
+      <Filter>Source Files\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hardware\FMERDeviceHandler.cpp">
+      <Filter>Source Files\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hardware\MPANLDeviceHandler.cpp">
+      <Filter>Source Files\Hardware</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="VRiCommPort.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\aircraft\BaseAircraft.h">
+      <Filter>Header Files\Aircraft</Filter>
+    </ClInclude>
+    <ClInclude Include="src\aircraft\EadtX737.h">
+      <Filter>Header Files\Aircraft</Filter>
+    </ClInclude>
+    <ClInclude Include="src\aircraft\LaminarB738.h">
+      <Filter>Header Files\Aircraft</Filter>
+    </ClInclude>
+    <ClInclude Include="src\aircraft\LaminarB744.h">
+      <Filter>Header Files\Aircraft</Filter>
+    </ClInclude>
+    <ClInclude Include="src\aircraft\SsgB748.h">
+      <Filter>Header Files\Aircraft</Filter>
+    </ClInclude>
+    <ClInclude Include="src\aircraft\ZiboB738.h">
+      <Filter>Header Files\Aircraft</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hardware\BaseDeviceHandler.h">
+      <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hardware\FMERDeviceHandler.h">
+      <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hardware\MPANLDeviceHandler.h">
+      <Filter>Header Files\Hardware</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{d2d544c3-d076-4f34-90c5-a05d7b054dd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{ea797209-a53a-4010-a7af-bbe1ed87bb56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Aircraft">
+      <UniqueIdentifier>{2331454e-af9b-40b8-9717-f3104c412953}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Aircraft">
+      <UniqueIdentifier>{245fec2b-fea5-4e79-bfea-7e89ae2cfbe1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Hardware">
+      <UniqueIdentifier>{9136f99c-89c0-4d8c-a65b-3e8e1a7283b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hardware">
+      <UniqueIdentifier>{3e7d1574-a9e3-4c42-992f-71f206875626}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
