@@ -20,12 +20,12 @@ public:
 
 	enum VriRadioDisplay
 	{
-		Com1, Com1Standby, Com2, Com2Standby,
+		DSP_Com1, Com1Standby, DSP_Com2, Com2Standby,
 		Nav1, Nav1Standby, Nav2, Nav2Standby,
 		Transponder
 	};
 
-	virtual void displayRadio(VriRadioDisplay radio, int frequency);
+	virtual void displayRadio(VriRadioDisplay radioDisplay, int frequency);
 	virtual void displayDme1(float distance, float speed, float course, char *ident);
 	virtual void displayDme2(float distance, float speed, float course, char *ident);
 
@@ -57,7 +57,7 @@ public:
 
 		ComSel1, ComSel2, ComAux, Com1SNNN, Com1XNNN, Com2SNNN, Com2XNNN,
 		NavSel1, NavSel2, NavAux, Nav1SNNN, Nav1XNNN, Nav2SNNN, Nav2XNNN,
-		DmeSel1, DmeSel2,
+		AdfSel1, AdfSel2, DmeSel1, DmeSel2,
 		TrnSel, TrnAux, TrnSNNN, TrnXNNN,
 
 		CtlBn0, CtlBn1, CtlBn2, CtlBn3, CtlBn4, CtlBn5, CtlBn6, CtlBn7

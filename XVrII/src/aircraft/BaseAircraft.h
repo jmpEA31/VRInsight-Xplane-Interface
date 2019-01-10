@@ -144,7 +144,7 @@ private:
 
 	enum RadioMode
 	{
-		None, Comm1, Comm2, Nav1, Nav2, Dme1, Dme2, Trans
+		None, RM_Comm1, RM_Comm2, Nav1, Nav2, Dme1, Dme2, Trans
 	};
 
 	RadioMode m_radioMode;

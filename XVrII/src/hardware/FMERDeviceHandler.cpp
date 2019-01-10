@@ -1,5 +1,6 @@
 #include "FMERDeviceHandler.h"
 
+#include <logger.h>
 #include <XPLM/XPLMUtilities.h>
 
 FMERDeviceHandler::FMERDeviceHandler(VRiCommPort *commPort)
@@ -27,7 +28,15 @@ char* FMERDeviceHandler::identPrefix2() const
 //--------------------------------------------------
 BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::a(char *message, VriCommandParameters &command)
 {
-	if (strncmp("ALT", message, 3) == 0)
+	if (strncmp("ADF", message, 3) == 0)
+	{
+		// Handle ADF... messages
+		char *subcmd = &message[3];
+
+		if (strncmp("SEL1", subcmd, 3) == 0) command.m_command = AdfSel1;
+		else if (strncmp("SEL2", subcmd, 3) == 0) command.m_command = AdfSel2;
+	}
+	else if (strncmp("ALT", message, 3) == 0)
 	{
 		// Handle ALT... messages
 		char *subcmd = &message[3];
@@ -40,9 +49,9 @@ BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::a(char *message, VriC
 			command.m_command = (message[6] == '+' ? AltNNNup : AltNNNdn);
 		}
 	}
-	else if (strncmp("APT", message, 3) == 0)
+	else if (strncmp("APL", message, 3) == 0)
 	{
-		// Handle APT... messages
+		// Handle APL... messages
 		char *subcmd = &message[3];
 
 		if (strncmp("AT+", subcmd, 3) == 0) command.m_command = AptAtArm;
@@ -109,29 +118,30 @@ BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::c(char *message, VriC
 		if (strncmp("AUX", subcmd, 3) == 0) command.m_command = ComAux;
 		else if (strncmp("SEL1", subcmd, 4) == 0) command.m_command = ComSel1;
 		else if (strncmp("SEL2", subcmd, 4) == 0) command.m_command = ComSel2;
-
-		switch (subcmd[0])
+		else
 		{
-		case 's':
-			command.m_value = 10000 + toFloat(message, 4, 7);
-			command.m_command = Com1SNNN;
-			break;
-		case 'x':
-			command.m_value = 10000 + toFloat(message, 4, 7);
-			command.m_command = Com1XNNN;
-			break;
-		case 'S':
-			command.m_value = 10000 + toFloat(message, 4, 7);
-			command.m_command = Com2SNNN;
-			break;
-		case 'X':
-			command.m_value = 10000 + toFloat(message, 4, 7);
-			command.m_command = Com2XNNN;
-		default:
-			break;
+			switch (subcmd[0])
+			{
+			case 's':
+				command.m_value = 10000 + toFloat(message, 4, 7);
+				command.m_command = Com1SNNN;
+				break;
+			case 'x':
+				command.m_value = 10000 + toFloat(message, 4, 7);
+				command.m_command = Com1XNNN;
+				break;
+			case 'S':
+				command.m_value = 10000 + toFloat(message, 4, 7);
+				command.m_command = Com2SNNN;
+				break;
+			case 'X':
+				command.m_value = 10000 + toFloat(message, 4, 7);
+				command.m_command = Com2XNNN;
+			default:
+				break;
+			}
 		}
 	}
-
 	return (command.m_command == None ? BaseDeviceHandler::c(message, command) : command);
 }
 
@@ -167,7 +177,7 @@ BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::e(char *message, VriC
 		else if (strncmp("ARPT", subcmd, 4) == 0) command.m_command = EfisArpt;
 		else if (strncmp("DATA", subcmd, 4) == 0) command.m_command = EfisData;
 		else if (strncmp("FPV", subcmd, 3) == 0) command.m_command = EfisFpv;
-		else if (strncmp("MTRS", subcmd, 4) == 0) command.m_command = EfisMeters;
+		else if (strncmp("MTR", subcmd, 3) == 0) command.m_command = EfisMeters;
 		else if (strncmp("POS", subcmd, 3) == 0) command.m_command = EfisPos;
 		else if (strncmp("STA", subcmd, 3) == 0) command.m_command = EfisSta;
 		else if (strncmp("TERR", subcmd, 4) == 0) command.m_command = EfisTerr;
@@ -192,10 +202,10 @@ BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::h(char *message, VriC
 
 		if (strncmp("HDG", subcmd, 3) == 0) command.m_command = AptHdgSel;
 		else if (strncmp("HLD", subcmd, 3) == 0) command.m_command = AptHdgHold;
-		else if (message[3] >= '0' && message[3] <= '9')
+		else if (subcmd[0] >= '0' && subcmd[0] <= '9')
 		{
-			command.m_value = 100.0f * toFloat(message, 3, 5);
-			command.m_command = (message[6] == '+' ? HdgNNNup : HdgNNNdn);
+			command.m_value = toFloat(subcmd, 0, 2);
+			command.m_command = (subcmd[3] == '+' ? HdgNNNup : HdgNNNdn);
 		}
 	}
 
@@ -207,20 +217,26 @@ BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::h(char *message, VriC
 //---------------------------------------------------
 BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::m(char *message, VriCommandParameters &command)
 {
-	// MIN+/MIN-/MINS ?
-	switch (message[3])
+	if (strncmp("MIN", message, 3) == 0)
 	{
-	case '+':
-		command.m_command = EfisMinsUp;
-		break;
-	case '-':
-		command.m_command = EfisMinsDown;
-		break;
-	case 'S':
-		command.m_command = EfisMinsReset;
-		break;
-	default:
-		break;
+		// Handle MIN... messages
+		char *subcmd = &message[3];
+		command.m_boosted = (subcmd[1] == '+' || subcmd[1] == '-');
+
+		switch (subcmd[0])
+		{
+		case '+':	// MIN+/++
+			command.m_command = EfisMinsUp;
+			break;
+		case '-':	// MIN-/--
+			command.m_command = EfisMinsDown;
+			break;
+		case 'S':	// MINSEL+/-
+			command.m_command = EfisMinsReset;
+			break;
+		default:
+			break;
+		}
 	}
 
 	return (command.m_command == None ? BaseDeviceHandler::m(message, command) : command);
@@ -264,28 +280,43 @@ BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::n(char *message, VriC
 			}
 		}
 	}
-
-	// NDM / NDR ????
-	switch (message[2])
+	else if (strncmp("NDM", message, 3) == 0)
 	{
-	case 'M':
-		if (message[3] == '+')
+		// Handle NDM... messages
+		char *subcmd = &message[3];
+		switch (subcmd[0])
+		{
+		case '+':
 			command.m_command = EfisModeUp;
-		else if (message[3] == '-')
+			break;
+		case '-':
 			command.m_command = EfisModeDown;
-		else
+			break;
+		case 'S':
 			command.m_command = EfisCtr;
-		break;
-	case 'R':
-		if (message[3] == '+')
+			break;
+		default:
+			break;
+		}
+	}
+	else if (strncmp("NDR", message, 3) == 0)
+	{
+		// Handle NDR... messages
+		char *subcmd = &message[3];
+		switch (subcmd[0])
+		{
+		case '+':
 			command.m_command = EfisZoomOut;
-		else if (message[3] == '-')
+			break;
+		case '-':
 			command.m_command = EfisZoomIn;
-		else
+			break;
+		case 'S':
 			command.m_command = EfisTfc;
-		break;
-	default:
-		break;
+			break;
+		default:
+			break;
+		}
 	}
 
 	return (command.m_command == None ? BaseDeviceHandler::n(message, command) : command);
@@ -298,7 +329,7 @@ BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::o(char *message, VriC
 {
 	if (strncmp("OBS", message, 3) == 0)
 	{
-		// Handle EFI... messages
+		// Handle OBS... messages
 		char *subcmd = &message[3];
 
 		if (strncmp("+", subcmd, 1) == 0) command.m_command = ObsUp;
@@ -308,7 +339,9 @@ BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::o(char *message, VriC
 	return (command.m_command == None ? BaseDeviceHandler::o(message, command) : command);
 }
 
-
+//---------------------------------------------------
+// Parse a message from the hardware starting with S
+//---------------------------------------------------
 BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::s(char *message, VriCommandParameters &command)
 {
 	switch (message[3])
@@ -351,28 +384,31 @@ BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::s(char *message, VriC
 	return (command.m_command == None ? BaseDeviceHandler::s(message, command) : command);
 }
 
+//---------------------------------------------------
+// Parse a message from the hardware starting with T
+//---------------------------------------------------
 BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::t(char *message, VriCommandParameters &command)
 {
-	switch (message[4])
+	if (strncmp("TRN", message, 3) == 0)
 	{
-	case 'E':
-		command.m_command = TrnSel;
-		break;
-	case 'U':
-		command.m_command = TrnAux;
-		break;
-	}
-
-	switch (message[3])
-	{
-	case 'S':
-		command.m_value =  toFloat(message,4,7);
-		command.m_command = TrnSNNN;
-		break;
-	case 'X':
-		command.m_value =  toFloat(message,4,7);
-		command.m_command = TrnXNNN;
-		break;
+		// Handle TRN... messages
+		char *subcmd = &message[3];
+		if (strncmp("SEL", subcmd, 3) == 0) command.m_command = TrnSel;
+		else if (strncmp("AUX", subcmd, 3) == 0) command.m_command = TrnAux;
+		else
+		{
+			switch (subcmd[0])
+			{
+			case 'S':
+				command.m_value = toFloat(subcmd, 1, 4);
+				command.m_command = TrnSNNN;
+				break;
+			case 'X':
+				command.m_value = toFloat(subcmd, 1, 4);
+				command.m_command = TrnXNNN;
+				break;
+			}
+		}
 	}
 
 	return (command.m_command == None ? BaseDeviceHandler::t(message, command) : command);

@@ -159,16 +159,16 @@ void BaseAircraft::updateHeading(const std::list<BaseDeviceHandler*> &devices)
 {
 	if (m_hardwareHeading != m_heading)
 	{
-		XPLMSetDataf(m_refApDisplayedSpeed, m_hardwareHeading);
+		XPLMSetDataf(m_refApDisplayedHeading, m_hardwareHeading);
 		m_heading = m_hardwareHeading;
 	}
 	else if (hardwareDisplayUpdateAllowed())
 	{
-		float displayed = XPLMGetDataf(m_refApDisplayedSpeed);
+		float displayed = XPLMGetDataf(m_refApDisplayedHeading);		
 		if (displayed != m_heading)
 		{
 			for (auto &it = devices.begin(); it != devices.end(); it++)
-				(*it)->displayMcpSpeed(displayed);
+				(*it)->displayMcpHeading(displayed);
 
 			m_heading = displayed;
 			m_hardwareHeading = displayed;
@@ -202,13 +202,13 @@ void BaseAircraft::updateRadios(const std::list<BaseDeviceHandler*> &devices)
 {
 	switch (m_radioMode)
 	{
-	case Comm1:
+	case RM_Comm1:
 		syncNavDisplay(BaseDeviceHandler::Com1Standby, m_hardwareComm1Stdby, m_comm1Stdby, m_refComm1Stdby, devices);
-		syncNavDisplay(BaseDeviceHandler::Com1, m_hardwareComm1, m_comm1, m_refComm1, devices);
+		syncNavDisplay(BaseDeviceHandler::DSP_Com1, m_hardwareComm1, m_comm1, m_refComm1, devices);
 		break;
-	case Comm2:
+	case RM_Comm2:
 		syncNavDisplay(BaseDeviceHandler::Com2Standby, m_hardwareComm2Stdby, m_comm2Stdby, m_refComm2Stdby, devices);
-		syncNavDisplay(BaseDeviceHandler::Com2, m_hardwareComm2, m_comm2, m_refComm2, devices);
+		syncNavDisplay(BaseDeviceHandler::DSP_Com2, m_hardwareComm2, m_comm2, m_refComm2, devices);
 		break;
 	case Nav1:
 		syncNavDisplay(BaseDeviceHandler::Nav1Standby, m_hardwareNav1Stdby, m_nav1Stdby, m_refNav1Stdby, devices);
@@ -323,14 +323,14 @@ bool BaseAircraft::handleCommand(BaseDeviceHandler::VriCommandParameters command
 		m_comm1Stdby = -1;
 		m_hardwareComm1 = -1;
 		m_hardwareComm1Stdby = -1;
-		m_radioMode = Comm1;
+		m_radioMode = RM_Comm1;
 		return true;
 	case BaseDeviceHandler::ComSel2:
 		m_comm2 = -1;
 		m_comm2Stdby = -1;
 		m_hardwareComm2 = -1;
 		m_hardwareComm2Stdby = -1;
-		m_radioMode = Comm2;
+		m_radioMode = RM_Comm2;
 		return true;
 	case BaseDeviceHandler::Com1SNNN:
 		m_hardwareComm1Stdby = (int)command.m_value;

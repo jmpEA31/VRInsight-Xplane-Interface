@@ -97,18 +97,18 @@ void BaseDeviceHandler::displayMcpAltitude(float altitude)
 	m_commPort->send(command);
 }
 
-void BaseDeviceHandler::displayRadio(VriRadioDisplay radio, int frequency)
+void BaseDeviceHandler::displayRadio(VriRadioDisplay radioDisplay, int frequency)
 {
 	char command[16];
-	switch (radio)
+	switch (radioDisplay)
 	{
-	case Com1:
+	case DSP_Com1:
 		sprintf(command, "COMx%04d", frequency);
 		break;
 	case Com1Standby:
 		sprintf(command, "COMs%04d", frequency);
 		break;
-	case Com2:
+	case DSP_Com2:
 		sprintf(command, "COMX%04d", frequency);
 		break;
 	case Com2Standby:
