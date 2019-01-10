@@ -2,12 +2,35 @@
 #define BASEDEVICEHANDLERH
 
 class BaseAircraft;
+class VRiCommPort;
 
 class BaseDeviceHandler
 {
 public:
-	BaseDeviceHandler();
+	BaseDeviceHandler(VRiCommPort *commPort);
 	~BaseDeviceHandler();
+
+	void parseCommand(char *message);
+
+	void setAircraft(BaseAircraft *plane);
+
+	virtual void displayMcpSpeed(float speed, bool isMach = false);
+	virtual void displayMcpHeading(float heading);
+	virtual void displayMcpAltitude(float altitude);
+
+	enum VriRadioDisplay
+	{
+		Com1, Com1Standby, Com2, Com2Standby,
+		Nav1, Nav1Standby, Nav2, Nav2Standby,
+		Transponder
+	};
+
+	virtual void displayRadio(VriRadioDisplay radio, int frequency);
+	virtual void displayDme1(float distance, float speed, float course, char *ident);
+	virtual void displayDme2(float distance, float speed, float course, char *ident);
+
+	virtual void displayIdent1(char *display);
+	virtual void displayIdent2(char *display);
 
 	enum VriCommand 
 	{ 
@@ -47,15 +70,13 @@ public:
 		float m_value;
 	};
 
-	void parseCommand(char *message);
-
-	void setPlane(BaseAircraft *plane);
-
-	virtual char* identPrefix1() const;
-	virtual char* identPrefix2() const;
-
 protected:
-	virtual VriCommandParameters parse(char *message);
+	VriCommandParameters parse(char *message);
+
+	void sendIfChanged(char *newCommand, char *lastCommand, int length = 8);
+
+	float toFloat(char* cmd, int start, int end);
+
 	virtual VriCommandParameters a(char *message, VriCommandParameters &command);
 	virtual VriCommandParameters b(char *message, VriCommandParameters &command);
 	virtual VriCommandParameters c(char *message, VriCommandParameters &command);
@@ -83,10 +104,18 @@ protected:
 	virtual VriCommandParameters y(char *message, VriCommandParameters &command);
 	virtual VriCommandParameters z(char *message, VriCommandParameters &command);
 
-	float toFloat(char* cmd, int start, int end);
+	virtual char* identPrefix1() const;
+	virtual char* identPrefix2() const;
+
+	VRiCommPort *m_commPort;
 
 private:
-	BaseAircraft *m_plane;
+	BaseAircraft *m_aircraft;
+
+	char m_dmeDistance[16];
+	char m_dmeSpeed[16];
+	char m_dmeCourse[16];
+	char m_dmeIdent[16];
 };
 
 #endif

@@ -79,40 +79,33 @@ LaminarB744::LaminarB744()
 	/// Disabled 11.30r1: m_refAptToGa = findCommandRef("laminar/B747/engine/TOGA_switch_L");
 }
 
-void LaminarB744::updateAltitude(const std::list<VRiCommPort*> &devices)
+void LaminarB744::updateAltitude(const std::list<BaseDeviceHandler*> &devices)
 {
 	// Only sync from sim to hardware, changing is done through up/down command
 	float displayed = XPLMGetDataf(m_refApDisplayedAltitude);
 	if (displayed != m_altitude)
 	{
-		char command[16];
-		sprintf(command, "ALT%03.0f\0\0", (displayed / 100));
 		for (auto &it = devices.begin(); it != devices.end(); it++)
-		{
-			(*it)->send(command);
-		}
+			(*it)->displayMcpAltitude(displayed);
+
 		m_altitude = displayed;
 		m_hardwareAltitude = displayed;
 	}
 }
 
-void LaminarB744::updateHeading(const std::list<VRiCommPort*> &devices)
+void LaminarB744::updateHeading(const std::list<BaseDeviceHandler*> &devices)
 {
 	// Only sync from sim to hardware, changing is done through up/down command
 	float displayed = XPLMGetDataf(m_refApDisplayedHeading);
 	if (displayed != m_heading)
 	{
-		char command[16];
-		sprintf(command, "HDG%03.0f", displayed);
 		for (auto &it = devices.begin(); it != devices.end(); it++)
-		{
-			(*it)->send(command);
-		}
+			(*it)->displayMcpHeading(displayed);
+
 		m_heading = displayed;
 		m_hardwareHeading = displayed;
 	}
 }
-
 
 #define COMMAND(a) case BaseDeviceHandler::##a: scheduleCommand(m_ref##a); return true;
 

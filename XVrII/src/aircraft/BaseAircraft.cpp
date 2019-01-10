@@ -23,7 +23,7 @@ BaseAircraft::BaseAircraft()
 	, m_hardwareAltitude(-1.0)
 	, m_hardwareSpeed(-1.0)
 	, m_hardwareHeading(-1.0)
-	, m_mode(None)
+	, m_radioMode(None)
 	, m_typeResetCounter(5)
 {
 	m_refApDisplayedAltitude = findDataRef(SIM_COCKPIT2_AUTOPILOT, "altitude_dial_ft");
@@ -108,7 +108,7 @@ XPLMCommandRef BaseAircraft::findCommandRef(const char *prefix, char *command)
 	return ref;
 }
 
-void BaseAircraft::updateDisplays(const std::list<VRiCommPort*> &devices)
+void BaseAircraft::updateDisplays(const std::list<BaseDeviceHandler*> &devices)
 {
 	if (m_typeResetCounter > 0)
 	{
@@ -117,15 +117,25 @@ void BaseAircraft::updateDisplays(const std::list<VRiCommPort*> &devices)
 		{
 			for (auto it = devices.begin(); it != devices.end(); it++)
 			{
-				(*it)->sendIdent1("    ");
-				(*it)->sendIdent2("    ");
+				(*it)->displayIdent1("    ");
+				(*it)->displayIdent2("    ");
 			}
 		}
 	}
 
 	updateAltitude(devices);
 	updateHeading(devices);
+	updateSpeed(devices);
+	updateRadios(devices);
+}
 
+bool BaseAircraft::hardwareDisplayUpdateAllowed()
+{
+	return true;
+}
+
+void BaseAircraft::updateSpeed(const std::list<BaseDeviceHandler*> &devices)
+{
 	if (m_hardwareSpeed != m_speed)
 	{
 		XPLMSetDataf(m_refApDisplayedSpeed, m_hardwareSpeed);
@@ -136,175 +146,37 @@ void BaseAircraft::updateDisplays(const std::list<VRiCommPort*> &devices)
 		float displayed = XPLMGetDataf(m_refApDisplayedSpeed);
 		if (displayed != m_speed)
 		{
-			char command[16];
-			sprintf(command, "SPD%03.0f\0\0", displayed);
 			for (auto &it = devices.begin(); it != devices.end(); it++)
-			{
-				(*it)->send(command);
-			}
+				(*it)->displayMcpSpeed(displayed);
+
 			m_speed = displayed;
 			m_hardwareSpeed = displayed;
 		}
 	}
-	
-	switch (m_mode)
+}
+
+void BaseAircraft::updateHeading(const std::list<BaseDeviceHandler*> &devices)
+{
+	if (m_hardwareHeading != m_heading)
 	{
-	case Comm1:
-		syncNavDisplay(m_hardwareComm1Stdby, m_comm1Stdby, m_refComm1Stdby, devices, "COMs%04d");
-		syncNavDisplay(m_hardwareComm1, m_comm1, m_refComm1, devices, "COMx%04d");
-		break;
-	case Comm2:
-		syncNavDisplay(m_hardwareComm2Stdby, m_comm2Stdby, m_refComm2Stdby, devices, "COMS%04d");
-		syncNavDisplay(m_hardwareComm2, m_comm2, m_refComm2, devices, "COMX%04d");
-		break;
-	case Nav1:
-		syncNavDisplay(m_hardwareNav1Stdby, m_nav1Stdby, m_refNav1Stdby, devices, "NAVs%04d");
-		syncNavDisplay(m_hardwareNav1, m_nav1, m_refNav1, devices, "NAVx%04d");
-		break;
-	case Nav2:
-		syncNavDisplay(m_hardwareNav2Stdby, m_nav2Stdby, m_refNav2Stdby, devices, "NAVS%04d");
-		syncNavDisplay(m_hardwareNav2, m_nav2, m_refNav2, devices, "NAVX%04d");
-		break;
-	case Trans:
-		syncNavDisplay(m_hardwareTransponderCode, m_transponderCode, m_refTransponderCode, devices, "TRN%04d");
-		break;
-	case Dme1:
+		XPLMSetDataf(m_refApDisplayedSpeed, m_hardwareHeading);
+		m_heading = m_hardwareHeading;
+	}
+	else if (hardwareDisplayUpdateAllowed())
+	{
+		float displayed = XPLMGetDataf(m_refApDisplayedSpeed);
+		if (displayed != m_heading)
 		{
-			int sim = (int)(XPLMGetDataf(m_refDme1Dist) * 10);
-			if (m_dme1Dist != sim)
-			{
-				char command[9];
-				sprintf(command, "DMEd%04u", sim);
-				for (auto &it = devices.begin(); it != devices.end(); it++)
-				{
-					(*it)->send(command);
-				}
-				m_dme1Dist = sim;
-				break;
-			}
+			for (auto &it = devices.begin(); it != devices.end(); it++)
+				(*it)->displayMcpSpeed(displayed);
 
-			sim = (int)(XPLMGetDataf(m_refDme1Speed));
-			if (m_dme1Speed != sim)
-			{
-				char command[9];
-				sprintf(command, "DMEs%03u", sim);
-				for (auto &it = devices.begin(); it != devices.end(); it++)
-				{
-					(*it)->send(command);
-				}
-				m_dme1Speed = sim;
-				break;
-			}
-
-			sim = (int)(XPLMGetDataf(m_refDme1Course) + 360.5) % 360;
-			if (m_dme1Course != sim)
-			{
-				char command[9];
-				sprintf(command, "DMc%03u ", sim);
-				for (auto &it = devices.begin(); it != devices.end(); it++)
-				{
-					(*it)->send(command);
-				}
-				m_dme1Course = sim;
-				break;
-			}
-
-
-			char ident[16];
-			int ret = XPLMGetDatab(m_refDme1Ident, ident, 0, 16);
-			if (strcmp(ident, m_dme1Ident))
-			{
-				if (strlen(ident) == 0)
-				{
-					strcpy(ident, "-----");
-				}
-
-				char command[16];
-				strcpy(command, "DMi");
-				strncat(command, ident, 5);
-				strncat(command, "        ", 8);
-				for (auto &it = devices.begin(); it != devices.end(); it++)
-				{
-					(*it)->send(command);
-				}
-				strncpy(m_dme1Ident, ident, 8);
-			}
+			m_heading = displayed;
+			m_hardwareHeading = displayed;
 		}
-		break;
-
-	case Dme2:
-		{
-			int sim = (int)(XPLMGetDataf(m_refDme2Dist) * 10);
-			if (m_dme2Dist != sim)
-			{
-				char command[9];
-				sprintf(command, "DMED%04u", sim);
-				for (auto &it = devices.begin(); it != devices.end(); it++)
-				{
-					(*it)->send(command);
-				}
-				m_dme2Dist = sim;
-				break;
-			}
-
-			sim = (int)(XPLMGetDataf(m_refDme2Speed));
-			if (m_dme2Speed != sim)
-			{
-				char command[9];
-				sprintf(command, "DMES%03u", sim);
-				for (auto &it = devices.begin(); it != devices.end(); it++)
-				{
-					(*it)->send(command);
-				}
-				m_dme2Speed = sim;
-				break;
-			}
-
-			sim = (int)(XPLMGetDataf(m_refDme2Course));
-			if (m_dme2Course != sim)
-			{
-				char command[8];
-				sprintf(command, "DMC%03u", sim);
-				for (auto &it = devices.begin(); it != devices.end(); it++)
-				{
-					(*it)->send(command);
-				}
-				m_dme2Course = sim;
-				break;
-			}
-
-			char ident[16];
-			int ret = XPLMGetDatab(m_refDme2Ident, ident, 0, 16);
-			if (strcmp(ident, m_dme2Ident))
-			{
-				if (strlen(ident) == 0)
-				{
-					strcpy(ident, "-----");
-				}
-				char command[16];
-				strcpy(command, "DMI");
-				strncat(command, ident, 5);
-				strncat(command, "        ", 8);
-				for (auto &it = devices.begin(); it != devices.end(); it++)
-				{
-					(*it)->send(command);
-				}
-				strncpy(m_dme2Ident, ident, 8);
-			}
-		}
-		break;
-
-	default:
-		break;
 	}
 }
 
-bool BaseAircraft::hardwareDisplayUpdateAllowed()
-{
-	return true;
-}
-
-void BaseAircraft::updateAltitude(const std::list<VRiCommPort*> &devices)
+void BaseAircraft::updateAltitude(const std::list<BaseDeviceHandler*> &devices)
 {
 	if (m_hardwareAltitude != m_altitude)
 	{
@@ -316,11 +188,9 @@ void BaseAircraft::updateAltitude(const std::list<VRiCommPort*> &devices)
 		float displayed = XPLMGetDataf(m_refApDisplayedAltitude);
 		if (displayed != m_altitude)
 		{
-			char command[16];
-			sprintf(command, "ALT%03.0f\0\0", (displayed / 100));
 			for (auto &it = devices.begin(); it != devices.end(); it++)
 			{
-				(*it)->send(command);
+				(*it)->displayMcpAltitude(displayed);
 			}
 			m_altitude = displayed;
 			m_hardwareAltitude = displayed;
@@ -328,31 +198,58 @@ void BaseAircraft::updateAltitude(const std::list<VRiCommPort*> &devices)
 	}
 }
 
-void BaseAircraft::updateHeading(const std::list<VRiCommPort*> &devices)
+void BaseAircraft::updateRadios(const std::list<BaseDeviceHandler*> &devices)
 {
-	if (m_hardwareHeading != m_heading)
+	switch (m_radioMode)
 	{
-		XPLMSetDataf(m_refApDisplayedHeading, m_hardwareHeading);
-		m_heading = m_hardwareHeading;
+	case Comm1:
+		syncNavDisplay(BaseDeviceHandler::Com1Standby, m_hardwareComm1Stdby, m_comm1Stdby, m_refComm1Stdby, devices);
+		syncNavDisplay(BaseDeviceHandler::Com1, m_hardwareComm1, m_comm1, m_refComm1, devices);
+		break;
+	case Comm2:
+		syncNavDisplay(BaseDeviceHandler::Com2Standby, m_hardwareComm2Stdby, m_comm2Stdby, m_refComm2Stdby, devices);
+		syncNavDisplay(BaseDeviceHandler::Com2, m_hardwareComm2, m_comm2, m_refComm2, devices);
+		break;
+	case Nav1:
+		syncNavDisplay(BaseDeviceHandler::Nav1Standby, m_hardwareNav1Stdby, m_nav1Stdby, m_refNav1Stdby, devices);
+		syncNavDisplay(BaseDeviceHandler::Nav1, m_hardwareNav1, m_nav1, m_refNav1, devices);
+		break;
+	case Nav2:
+		syncNavDisplay(BaseDeviceHandler::Nav2Standby, m_hardwareNav2Stdby, m_nav2Stdby, m_refNav2Stdby, devices);
+		syncNavDisplay(BaseDeviceHandler::Nav2, m_hardwareNav2, m_nav2, m_refNav2, devices);
+		break;
+	case Trans:
+		syncNavDisplay(BaseDeviceHandler::Transponder, m_hardwareTransponderCode, m_transponderCode, m_refTransponderCode, devices);
+		break;
+	case Dme1:
+	{
+		float distance = XPLMGetDataf(m_refDme1Dist);
+		float speed = XPLMGetDataf(m_refDme1Speed);
+		float course = XPLMGetDataf(m_refDme1Course);
+		char ident[16];
+		XPLMGetDatab(m_refDme1Ident, ident, 0, 16);
+		for (auto &it = devices.begin(); it != devices.end(); it++)
+			(*it)->displayDme1(distance, speed, course, ident);
+		break;
 	}
-	else if (hardwareDisplayUpdateAllowed())
+	case Dme2:
 	{
-		float displayed = XPLMGetDataf(m_refApDisplayedHeading);
-		if (displayed != m_heading)
-		{
-			char command[16];
-			sprintf(command, "HDG%03.0f", displayed);
-			for (auto &it = devices.begin(); it != devices.end(); it++)
-			{
-				(*it)->send(command);
-			}
-			m_heading = displayed;
-			m_hardwareHeading = displayed;
-		}
+		float distance = XPLMGetDataf(m_refDme2Dist);
+		float speed = XPLMGetDataf(m_refDme2Speed);
+		float course = XPLMGetDataf(m_refDme2Course);
+		char ident[16];
+		XPLMGetDatab(m_refDme2Ident, ident, 0, 16);
+		for (auto &it = devices.begin(); it != devices.end(); it++)
+			(*it)->displayDme2(distance, speed, course, ident);
+		break;
+	}
+
+	default:
+		break;
 	}
 }
 
-void BaseAircraft::syncNavDisplay(int &hardware, int &synced, XPLMDataRef ref, const std::list<VRiCommPort*> &devices, char *format)
+void BaseAircraft::syncNavDisplay(BaseDeviceHandler::VriRadioDisplay radio, int &hardware, int &synced, XPLMDataRef ref, const std::list<BaseDeviceHandler*> &devices)
 {
 	if (synced != hardware)
 	{
@@ -361,15 +258,12 @@ void BaseAircraft::syncNavDisplay(int &hardware, int &synced, XPLMDataRef ref, c
 	}
 	else
 	{
-		int simulated = XPLMGetDatai(ref);
+		int simulated = XPLMGetDatai(ref) % 10000;
 		if (synced != simulated)
 		{
-			char command[16];
-			sprintf(command, format, simulated % 10000);
 			for (auto &it = devices.begin(); it != devices.end(); it++)
-			{
-				(*it)->send(command);
-			}
+				(*it)->displayRadio(radio, simulated);
+
 			synced = simulated;
 			hardware = simulated;
 		}
@@ -382,10 +276,14 @@ void BaseAircraft::simulateKey(int keyNumber)
 	key.type = INPUT_KEYBOARD;
 	key.ki.wVk = keyNumber + 0x7c;  // F13
 	key.ki.wScan = 0;
-	key.ki.dwFlags = 0;
 	key.ki.time = 0;
 	key.ki.dwExtraInfo = GetMessageExtraInfo();
+
+	// Key Down
+	key.ki.dwFlags = 0;
 	SendInput(1, &key, sizeof(INPUT));
+
+	// Key Up
 	key.ki.dwFlags = 2;
 	SendInput(1, &key, sizeof(INPUT));
 }
@@ -425,14 +323,14 @@ bool BaseAircraft::handleCommand(BaseDeviceHandler::VriCommandParameters command
 		m_comm1Stdby = -1;
 		m_hardwareComm1 = -1;
 		m_hardwareComm1Stdby = -1;
-		m_mode = Comm1;
+		m_radioMode = Comm1;
 		return true;
 	case BaseDeviceHandler::ComSel2:
 		m_comm2 = -1;
 		m_comm2Stdby = -1;
 		m_hardwareComm2 = -1;
 		m_hardwareComm2Stdby = -1;
-		m_mode = Comm2;
+		m_radioMode = Comm2;
 		return true;
 	case BaseDeviceHandler::Com1SNNN:
 		m_hardwareComm1Stdby = (int)command.m_value;
@@ -454,14 +352,14 @@ bool BaseAircraft::handleCommand(BaseDeviceHandler::VriCommandParameters command
 		m_nav1Stdby = -1;
 		m_hardwareNav1 = -1;
 		m_hardwareNav1Stdby = -1;
-		m_mode = Nav1;
+		m_radioMode = Nav1;
 		return true;
 	case BaseDeviceHandler::NavSel2:
 		m_nav2 = -1;
 		m_nav2Stdby = -1;
 		m_hardwareNav2 = -1;
 		m_hardwareNav2Stdby = -1;
-		m_mode = Nav2;
+		m_radioMode = Nav2;
 		return true;
 	case BaseDeviceHandler::Nav1SNNN:
 		m_hardwareNav1Stdby = (int)command.m_value;
@@ -483,20 +381,20 @@ bool BaseAircraft::handleCommand(BaseDeviceHandler::VriCommandParameters command
 		m_dme1Ident[0] = '\0';
 		m_dme1Speed = -1;
 		m_dme1Course = -1;
-		m_mode = Dme1;
+		m_radioMode = Dme1;
 		return true;
 	case BaseDeviceHandler::DmeSel2:
 		m_dme2Dist = -1;
 		m_dme2Ident[0] = '\0';
 		m_dme2Speed = -1;
 		m_dme2Course = -1;
-		m_mode = Dme2;
+		m_radioMode = Dme2;
 		return true;
 
 	case BaseDeviceHandler::TrnSel:
 		m_hardwareTransponderCode = -1;
 		m_transponderCode = -1;
-		m_mode = Trans;
+		m_radioMode = Trans;
 		return true;
 	case BaseDeviceHandler::TrnSNNN:
 //	case VRiCmdParser::TrnXNNN:

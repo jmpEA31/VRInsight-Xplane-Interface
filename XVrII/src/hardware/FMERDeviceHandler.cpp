@@ -2,8 +2,8 @@
 
 #include <XPLM/XPLMUtilities.h>
 
-FMERDeviceHandler::FMERDeviceHandler()
-	: BaseDeviceHandler()
+FMERDeviceHandler::FMERDeviceHandler(VRiCommPort *commPort)
+	: BaseDeviceHandler(commPort)
 {
 
 }

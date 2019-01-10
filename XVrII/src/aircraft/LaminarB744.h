@@ -17,8 +17,8 @@ protected:
 	static const char *LAM_B747_EFIS;
 	static const char *LAM_B747_TOGGLE;
 
-	void updateAltitude(const std::list<VRiCommPort*> &devices) override;
-	void updateHeading(const std::list<VRiCommPort*> &devices) override;
+	void updateAltitude(const std::list<BaseDeviceHandler*> &devices) override;
+	void updateHeading(const std::list<BaseDeviceHandler*> &devices) override;
 
 	XPLMCommandRef m_refAltNNNup;
 	XPLMCommandRef m_refAltNNNdn;

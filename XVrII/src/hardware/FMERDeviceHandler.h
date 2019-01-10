@@ -6,7 +6,7 @@
 class FMERDeviceHandler : public BaseDeviceHandler
 {
 public:
-	FMERDeviceHandler();
+	FMERDeviceHandler(VRiCommPort *commPort);
 	virtual ~FMERDeviceHandler();
 
 	char* identPrefix1() const override;

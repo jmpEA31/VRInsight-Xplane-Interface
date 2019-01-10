@@ -139,7 +139,7 @@ bool SsgB748::hardwareDisplayUpdateAllowed()
 	return ((m_displayCommandsScheduled == 0) && (m_displayCommandCooldown < XPLMGetElapsedTime()));
 }
 
-void SsgB748::updateAltitude(const std::list<VRiCommPort*> &devices)
+void SsgB748::updateAltitude(const std::list<BaseDeviceHandler*> &devices)
 {
 	if (!hardwareDisplayUpdateAllowed())
 		return;
@@ -148,18 +148,16 @@ void SsgB748::updateAltitude(const std::list<VRiCommPort*> &devices)
 	float displayed = XPLMGetDataf(m_refApDisplayedAltitude);
 	if (displayed != m_altitude)
 	{
-		char command[16];
-		sprintf(command, "ALT%03.0f\0\0", (displayed / 100));
 		for (auto &it = devices.begin(); it != devices.end(); it++)
 		{
-			(*it)->send(command);
+			(*it)->displayMcpAltitude(displayed);
 		}
 		m_altitude = displayed;
 		m_hardwareAltitude = displayed;
 	}
 }
 
-void SsgB748::updateHeading(const std::list<VRiCommPort*> &devices)
+void SsgB748::updateHeading(const std::list<BaseDeviceHandler*> &devices)
 {
 	if (!hardwareDisplayUpdateAllowed())
 		return;
@@ -168,11 +166,9 @@ void SsgB748::updateHeading(const std::list<VRiCommPort*> &devices)
 	float displayed = XPLMGetDataf(m_refApDisplayedHeading);
 	if (displayed != m_heading)
 	{
-		char command[16];
-		sprintf(command, "HDG%03.0f", displayed);
 		for (auto &it = devices.begin(); it != devices.end(); it++)
 		{
-			(*it)->send(command);
+			(*it)->displayMcpHeading(displayed);
 		}
 		m_heading = displayed;
 		m_hardwareHeading = displayed;

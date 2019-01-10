@@ -23,7 +23,7 @@ void scanForVRiDevices();
 void scanUserPlane();
 
 static std::list<VRiCommPort*> g_allPorts;
-static std::list<VRiCommPort*> g_vriDevices;
+static std::list<BaseDeviceHandler*> g_vriDeviceHandlers;
 static bool g_enabled = false;
 
 static XPLMDataRef g_refAcfDescription = NULL;
@@ -83,10 +83,10 @@ PLUGIN_API void XPluginDisable(void)
 		XPLMUnregisterFlightLoopCallback(mainloopCallback, nullptr);
 
 		// close commports and kill poll threads
-		for (auto it = g_vriDevices.begin(); it != g_vriDevices.end(); it++)
+		for (auto it = g_vriDeviceHandlers.begin(); it != g_vriDeviceHandlers.end(); it++)
 			delete *it;
 
-		g_vriDevices.clear();
+		g_vriDeviceHandlers.clear();
 
 		if (g_plane != nullptr)
 		{
@@ -123,7 +123,7 @@ extern "C" float mainloopCallback(float elapsedMe, float elapsedSim, int counter
 			} while (!commands->empty());
 			delete commands;
 		}
-		g_plane->updateDisplays(g_vriDevices);
+		g_plane->updateDisplays(g_vriDeviceHandlers);
 	}
 
 	return -5;
@@ -178,9 +178,9 @@ void scanForVRiDevices()
 	{
 		if ((*it)->status() == VRiCommPort::Found)
 		{
-			(*it)->sendIdent1(g_ident1);
-			(*it)->sendIdent2(g_ident2);
-			g_vriDevices.push_back(*it);
+			(*it)->parser()->displayIdent1(g_ident1);
+			(*it)->parser()->displayIdent2(g_ident2);
+			g_vriDeviceHandlers.push_back((*it)->parser());
 		}
 		else
 		{
@@ -205,10 +205,10 @@ void scanUserPlane()
 	if (ZiboB738::isLoaded())
 	{
 		VLLog("Aircraft is supported (Zibo B738)");
-		for (auto it = g_vriDevices.begin(); it != g_vriDevices.end(); it++)
+		for (auto it = g_vriDeviceHandlers.begin(); it != g_vriDeviceHandlers.end(); it++)
 		{
-			(*it)->sendIdent1("ZIBO");
-			(*it)->sendIdent2("B738");
+			(*it)->displayIdent1("ZIBO");
+			(*it)->displayIdent2("B738");
 		}
 
 		g_plane = new ZiboB738();
@@ -216,10 +216,10 @@ void scanUserPlane()
 	else if (LaminarB738::isLoaded())
 	{
 		VLLog("Aircraft is supported (Laminar B738)");
-		for (auto it = g_vriDevices.begin(); it != g_vriDevices.end(); it++)
+		for (auto it = g_vriDeviceHandlers.begin(); it != g_vriDeviceHandlers.end(); it++)
 		{
-			(*it)->sendIdent1("LAMI");
-			(*it)->sendIdent2("B738");
+			(*it)->displayIdent1("LAMI");
+			(*it)->displayIdent2("B738");
 		}
 
 		g_plane = new LaminarB738();
@@ -227,10 +227,10 @@ void scanUserPlane()
 	else if (LaminarB744::isLoaded())
 	{
 		VLLog("Aircraft is supported (Laminar B744)");
-		for (auto it = g_vriDevices.begin(); it != g_vriDevices.end(); it++)
+		for (auto it = g_vriDeviceHandlers.begin(); it != g_vriDeviceHandlers.end(); it++)
 		{
-			(*it)->sendIdent1("LAMI");
-			(*it)->sendIdent2("B744");
+			(*it)->displayIdent1("LAMI");
+			(*it)->displayIdent2("B744");
 		}
 
 		g_plane = new LaminarB744();
@@ -238,10 +238,10 @@ void scanUserPlane()
 	else if (EadtX737::isLoaded())
 	{
 		VLLog("Aircraft is not yet supported (Eadt x737)");
-		for (auto it = g_vriDevices.begin(); it != g_vriDevices.end(); it++)
+		for (auto it = g_vriDeviceHandlers.begin(); it != g_vriDeviceHandlers.end(); it++)
 		{
-			(*it)->sendIdent1("EADT");
-			(*it)->sendIdent2("x737");
+			(*it)->displayIdent1("EADT");
+			(*it)->displayIdent2("x737");
 		}
 
 		g_plane = new EadtX737();
@@ -249,10 +249,10 @@ void scanUserPlane()
 	else if (SsgB748::isLoaded())
 	{
 		VLLog("Aircraft is supported (SSG B748)");
-		for (auto it = g_vriDevices.begin(); it != g_vriDevices.end(); it++)
+		for (auto it = g_vriDeviceHandlers.begin(); it != g_vriDeviceHandlers.end(); it++)
 		{
-			(*it)->sendIdent1("SSG ");
-			(*it)->sendIdent2("B748");
+			(*it)->displayIdent1("SSG ");
+			(*it)->displayIdent2("B748");
 		}
 
 		g_plane = new SsgB748();
@@ -260,13 +260,7 @@ void scanUserPlane()
 
 	if (g_plane != nullptr)
 	{
-		for (auto it = g_vriDevices.begin(); it != g_vriDevices.end(); it++)
-		{
-			BaseDeviceHandler *parser = (*it)->parser();
-			if (parser != nullptr)
-			{
-				parser->setPlane(g_plane);
-			}
-		}
+		for (auto it = g_vriDeviceHandlers.begin(); it != g_vriDeviceHandlers.end(); it++)
+			(*it)->setAircraft(g_plane);
 	}
 }

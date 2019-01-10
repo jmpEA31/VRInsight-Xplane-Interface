@@ -6,7 +6,7 @@
 class MPANLDeviceHandler : public BaseDeviceHandler
 {
 public:
-	MPANLDeviceHandler();
+	MPANLDeviceHandler(VRiCommPort *commPort);
 	virtual ~MPANLDeviceHandler();
 
 	char* identPrefix1() const override;

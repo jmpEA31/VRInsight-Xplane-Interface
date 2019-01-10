@@ -98,9 +98,7 @@ VRiCommPort::~VRiCommPort()
 	}
 
 	if (m_parser != nullptr)
-	{
-		delete m_parser;
-	}
+		m_parser = nullptr;
 
 	if (m_status == Status::Scanning || m_status == Status::Found || m_status == Status::TimedOut)
 	{
@@ -128,29 +126,6 @@ DWORD VRiCommPort::errorCode() const
 	return m_error;
 }
 
-void VRiCommPort::sendIdent1(char *display)
-{
-	if (m_parser == nullptr || m_parser->identPrefix1() == nullptr)
-		return;
-
-	char szCommand[9];
-	strncpy(szCommand, m_parser->identPrefix1(), 8);
-	strncat(szCommand, display, 8);
-	send(szCommand);
-}
-
-void VRiCommPort::sendIdent2(char *display)
-{
-	if (m_parser == nullptr || m_parser->identPrefix2() == nullptr)
-		return;
-
-	char szCommand[9];
-	strncpy(szCommand, m_parser->identPrefix2(), 8);
-	strncat(szCommand, display, 8);
-	send(szCommand);
-}
-
-
 void VRiCommPort::send(char *command)
 {
 	if (status() == Status::Found)
@@ -176,6 +151,7 @@ void VRiCommPort::poll()
 	{
 		bool didSend;
 
+		// First send any pending commands from the plugin to the hardware
 		do
 		{
 			didSend = false;
@@ -200,7 +176,8 @@ void VRiCommPort::poll()
 		} 
 		while (didSend);
 
-		if (!::ReadFile(m_hCommPort, newcmd, 32, &readCount, nullptr))					// Reading MAX of 32 bytes
+		// Then see if there is any data coming in from the hardware, reading MAX of 32 bytes
+		if (!::ReadFile(m_hCommPort, newcmd, 32, &readCount, nullptr))
 		{
 			m_status = Status::Failed;
 			m_poll = false;
@@ -210,6 +187,7 @@ void VRiCommPort::poll()
 
 		if (readCount == 0)
 		{
+			// No data received, if we are in the scan phase check timeout
 			if (m_status == Status::Scanning)
 			{
 				std::chrono::duration<double> scanTime = std::chrono::system_clock::now() - start;
@@ -220,19 +198,26 @@ void VRiCommPort::poll()
 					continue;
 				}
 			}
+
+			// Not scanning or no time out yet, just wait and try again
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			continue;
 		}
 
-		for (DWORD i = 0; i<readCount; i++)											// replace 0's with .'s for easier string handling
+		// replace 0's with .'s for easier string handling
+		for (DWORD i = 0; i < readCount; i++)											
 			if (newcmd[i] == 0x00)
 				newcmd[i] = 0x2e;
 
+		// append the new data to any remaining data from the previous loop
 		commandLength += readCount;
 		strncat(commandBuffer, newcmd, readCount);
 
-		while (commandLength >= 8)													// Reducing buffer to below 8 bytes, so commandBuffer max size = 7+32 = 39 bytes
+		// Reducing buffer to below 8 bytes, so commandBuffer max size = 7+32 = 39 bytes
+		// Aka: Keep looping while any potential command remains in the buffer
+		while (commandLength >= 8)													
 		{
+			// Get the head message (assumes all VrInsight hardware send 8 byte commands)
 			char cmdNow[16];
 			strncpy(cmdNow, commandBuffer, 8);
 			cmdNow[8] = 0;
@@ -240,28 +225,33 @@ void VRiCommPort::poll()
 
 			if (m_status == Status::Scanning)
 			{
+				// If we are scanning to see which hardware is present...
 				if (!strncmp(cmdNow, "CMDCON", 6))
 				{
+					// It is VrInsight HW, now let's ask which...
 					DWORD written;
 					::WriteFile(m_hCommPort, "CMDFUN\0\0", 8, &written, nullptr);
 				}
 				else if (!strncmp(cmdNow, "CMDFMER", 7))
 				{
+					// MCP Combo I found
 					std::chrono::duration<double> scanTime = std::chrono::system_clock::now() - start;
 					VLLog("Indentified FMER (MCP Combo I) on <%s> after %.2f seconds", m_szPortName, scanTime.count());
-					m_parser = new FMERDeviceHandler();
+					m_parser = new FMERDeviceHandler(this);
 					m_status = Status::Found;
 				}
 				else if (!strncmp(cmdNow, "CMDMPanl", 8))
 				{
+					// M-Panel found
 					std::chrono::duration<double> scanTime = std::chrono::system_clock::now() - start;
 					VLLog("Indentified MPanl (M-Panel) on <%s> after %.2f seconds", m_szPortName, scanTime.count());
-					m_parser = new MPANLDeviceHandler();
+					m_parser = new MPANLDeviceHandler(this);
 					m_status = Status::Found;
 				}
 			}
 			else if (m_status == Status::Found)
 			{
+				// Not scanning, just parse the command
 				m_parser->parseCommand(cmdNow);
 			}
 
@@ -271,6 +261,8 @@ void VRiCommPort::poll()
 			commandLength -= 8;
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(5));					// At 115k2 8n1... 115200/9/8 = 1600 bytes/second, reading max 1000/5*32 = 6400
+		// At 115k2 8n1... 115200/9/8 = Max 1600 bytes/second, 
+		// Sleeping for 5ms allows reading of 1000/5*32 = 6400 bytes (minus processing above)
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));					
 	}
 }

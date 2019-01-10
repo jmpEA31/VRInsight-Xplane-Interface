@@ -19,7 +19,7 @@ public:
 	BaseAircraft();
 	virtual ~BaseAircraft();
 
-	void updateDisplays(const std::list<VRiCommPort*> &devices);
+	void updateDisplays(const std::list<BaseDeviceHandler*> &devices);
 
 	virtual bool handleCommand(BaseDeviceHandler::VriCommandParameters command);
 	CommandQueue *queuedCommands();
@@ -32,8 +32,10 @@ protected:
 	void scheduleCommand(XPLMCommandRef command, int repeat = 1);
 
 	virtual bool hardwareDisplayUpdateAllowed();
-	virtual void updateAltitude(const std::list<VRiCommPort*> &devices);
-	virtual void updateHeading(const std::list<VRiCommPort*> &devices);
+	virtual void updateSpeed(const std::list<BaseDeviceHandler*> &devices);
+	virtual void updateHeading(const std::list<BaseDeviceHandler*> &devices);
+	virtual void updateAltitude(const std::list<BaseDeviceHandler*> &devices);
+	virtual void updateRadios(const std::list<BaseDeviceHandler*> &devices);
 
 	float m_altitude;
 	float m_speed;
@@ -135,7 +137,7 @@ protected:
 	int m_transponderCode;
 
 private:
-	void syncNavDisplay(int &hardware, int &synced, XPLMDataRef ref, const std::list<VRiCommPort*> &devices, char *format);
+	void syncNavDisplay(BaseDeviceHandler::VriRadioDisplay radio, int &hardware, int &synced, XPLMDataRef ref, const std::list<BaseDeviceHandler*> &devices);
 	void simulateKey(int keyNumber);
 
 	CommandQueue *m_xpCommands;
@@ -145,7 +147,7 @@ private:
 		None, Comm1, Comm2, Nav1, Nav2, Dme1, Dme2, Trans
 	};
 
-	RadioMode m_mode;
+	RadioMode m_radioMode;
 	int m_typeResetCounter;
 };
 

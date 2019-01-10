@@ -2,8 +2,8 @@
 
 #include <XPLM/XPLMUtilities.h>
 
-MPANLDeviceHandler::MPANLDeviceHandler()
-	: BaseDeviceHandler()
+MPANLDeviceHandler::MPANLDeviceHandler(VRiCommPort *commPort)
+	: BaseDeviceHandler(commPort)
 {
 
 }

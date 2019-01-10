@@ -2,6 +2,7 @@
 #define SSGB748H
 
 #include "BaseAircraft.h"
+
 #include <mutex>
 
 class SsgB748 : public BaseAircraft
@@ -16,8 +17,8 @@ public:
 
 protected:
 	bool hardwareDisplayUpdateAllowed() override;
-	void updateAltitude(const std::list<VRiCommPort*> &devices) override;
-	void updateHeading(const std::list<VRiCommPort*> &devices) override;
+	void updateAltitude(const std::list<BaseDeviceHandler*> &devices) override;
+	void updateHeading(const std::list<BaseDeviceHandler*> &devices) override;
 	void relayToggle(XPLMDataRef ref, float &value);
 
 	XPLMCommandRef m_refAltNNNup;

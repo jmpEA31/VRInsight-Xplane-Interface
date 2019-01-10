@@ -23,9 +23,6 @@ public:
 	Status status() const;
 	const char *portName() const;
 
-	void sendIdent1(char *display);
-	void sendIdent2(char *display);
-
 	void send(char *command);
 
 private:

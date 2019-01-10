@@ -1,38 +1,30 @@
-#include <mutex>
-#include <sstream>
-
 #include "BaseDeviceHandler.h"
 #include "BaseAircraft.h"
-#include "VRiCommPort.h"
 
 #include "logger.h"
 
+#include <mutex>
+#include <sstream>
+
 #include <XPLM/XPLMUtilities.h>
 
-static std::mutex g_aircraftMutex;
+static std::mutex g_planeMutex;
 
-BaseDeviceHandler::BaseDeviceHandler(VRiCommPort *commPort)
-	: m_commPort(commPort)
-	, m_aircraft(nullptr)
+BaseDeviceHandler::BaseDeviceHandler()
+	: m_plane(nullptr)
 {
 }
 
 BaseDeviceHandler::~BaseDeviceHandler()
 {
-	if (m_aircraft != nullptr)
-		m_aircraft = nullptr;
-
-	if (m_commPort != nullptr)
-	{
-		delete m_commPort;
-		m_commPort = nullptr;
-	}
+	if (m_plane != nullptr)
+		m_plane = nullptr;
 }
 
-void BaseDeviceHandler::setAircraft(BaseAircraft *aircraft)
+void BaseDeviceHandler::setPlane(BaseAircraft *plane)
 {
-	std::lock_guard<std::mutex> guard(g_aircraftMutex);
-	m_aircraft = aircraft;
+	std::lock_guard<std::mutex> guard(g_planeMutex);
+	m_plane = plane;
 }
 
 void BaseDeviceHandler::parseCommand(char *message)
@@ -40,10 +32,10 @@ void BaseDeviceHandler::parseCommand(char *message)
 	VriCommandParameters command = parse(message);
 	bool handled = false;
 	{
-		std::lock_guard<std::mutex> guard(g_aircraftMutex);
-		if (command.m_command != None && m_aircraft != nullptr)
+		std::lock_guard<std::mutex> guard(g_planeMutex);
+		if (command.m_command != None && m_plane != nullptr)
 		{
-			handled = m_aircraft->handleCommand(command);
+			handled = m_plane->handleCommand(command);
 		}	
 	}
 
@@ -53,125 +45,6 @@ void BaseDeviceHandler::parseCommand(char *message)
 	}
 }
 
-
-void BaseDeviceHandler::displayIdent1(char *display)
-{
-	if (identPrefix1() == nullptr)
-		return;
-	
-	char szCommand[9];
-	strncpy(szCommand, identPrefix1(), 8);
-	strncat(szCommand, display, 8);
-	m_commPort->send(szCommand);
-}
-
-void BaseDeviceHandler::displayIdent2(char *display)
-{
-	if (identPrefix2() == nullptr)
-		return;
-
-	char szCommand[9];
-	strncpy(szCommand, identPrefix2(), 8);
-	strncat(szCommand, display, 8);
-	m_commPort->send(szCommand);
-}
-
-void BaseDeviceHandler::displayMcpSpeed(float speed, bool isMach)
-{
-	char command[16];
-	sprintf(command, "SPD%03.0f\0\0", speed);
-	m_commPort->send(command);
-}
-
-void BaseDeviceHandler::displayMcpHeading(float heading)
-{
-	char command[16];
-	sprintf(command, "HDG%03.0f\0\0", heading);
-	m_commPort->send(command);
-}
-
-void BaseDeviceHandler::displayMcpAltitude(float altitude)
-{
-	char command[16];
-	sprintf(command, "ALT%03.0f\0\0", (altitude / 100));
-	m_commPort->send(command);
-}
-
-void BaseDeviceHandler::displayRadio(VriRadioDisplay radio, int frequency)
-{
-	char command[16];
-	switch (radio)
-	{
-	case Com1:
-		sprintf(command, "COMx%04d", frequency);
-		break;
-	case Com1Standby:
-		sprintf(command, "COMs%04d", frequency);
-		break;
-	case Com2:
-		sprintf(command, "COMX%04d", frequency);
-		break;
-	case Com2Standby:
-		sprintf(command, "COMS%04d", frequency);
-		break;
-	case Nav1:
-		sprintf(command, "NAVx%04d", frequency);
-		break;
-	case Nav1Standby:
-		sprintf(command, "NAVs%04d", frequency);
-		break;
-	case Nav2:
-		sprintf(command, "NAVX%04d", frequency);
-		break;
-	case Nav2Standby:
-		sprintf(command, "NAVS%04d", frequency);
-		break;
-	case Transponder:
-		sprintf(command, "TRN%04d", frequency);
-		break;
-	}
-	m_commPort->send(command);
-}
-
-void BaseDeviceHandler::displayDme1(float distance, float speed, float course, char *ident)
-{
-	char command[9];
-
-	sprintf(command, "DMEd%04u", (int)(distance * 10.0));
-	sendIfChanged(command, m_dmeDistance);
-
-	sprintf(command, "DMEs%03u", (int)speed);
-	sendIfChanged(command, m_dmeSpeed);
-
-	sprintf(command, "DMc%03u ", (int)(course + 360.5) % 360);
-	sendIfChanged(command, m_dmeCourse);
-
-	strcpy(command, "DMi");
-	strncat(command, ident, 5);
-	strncat(command, "        ", 8);
-	sendIfChanged(command, m_dmeIdent);
-}
-
-void BaseDeviceHandler::displayDme2(float distance, float speed, float course, char *ident)
-{
-	char command[9];
-
-	sprintf(command, "DMED%04u", (int)(distance * 10.0));
-	sendIfChanged(command, m_dmeDistance);
-
-	sprintf(command, "DMES%03u", (int)speed);
-	sendIfChanged(command, m_dmeSpeed);
-
-	sprintf(command, "DMC%03u ", (int)(course + 360.5) % 360);
-	sendIfChanged(command, m_dmeCourse);
-
-	strcpy(command, "DMI");
-	strncat(command, ident, 5);
-	strncat(command, "        ", 8);
-	sendIfChanged(command, m_dmeIdent);
-}
-
-
 char* BaseDeviceHandler::identPrefix1() const
 {
 	return nullptr;
@@ -180,15 +53,6 @@ char* BaseDeviceHandler::identPrefix1() const
 char* BaseDeviceHandler::identPrefix2() const
 {
 	return nullptr;
-}
-
-void BaseDeviceHandler::sendIfChanged(char *newCommand, char *lastCommand, int length)
-{
-	if (strncmp(lastCommand, newCommand, length))
-	{
-		m_commPort->send(newCommand);
-		strncpy(lastCommand, newCommand, length);
-	}
 }
 
 //---------------------------------------------------------------------------
