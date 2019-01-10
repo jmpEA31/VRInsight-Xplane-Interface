@@ -17,3 +17,5 @@ PluginHost/x64/
 Output/*
 !Output/plugin_files_go_here.txt
 
+
+*.opendb

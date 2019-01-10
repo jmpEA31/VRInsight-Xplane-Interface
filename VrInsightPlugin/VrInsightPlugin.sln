@@ -9,19 +9,19 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XVrII", "..\XVrII\XVrII.vcx
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
+		RD140|x64 = RD140|x64
 		Release|x64 = Release|x64
 		ReleaseDev|x64 = ReleaseDev|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E673BFD1-E4D1-4B23-8366-40A027B293F6}.Debug|x64.ActiveCfg = Debug|x64
-		{E673BFD1-E4D1-4B23-8366-40A027B293F6}.Debug|x64.Build.0 = Debug|x64
+		{E673BFD1-E4D1-4B23-8366-40A027B293F6}.RD140|x64.ActiveCfg = RD140|x64
+		{E673BFD1-E4D1-4B23-8366-40A027B293F6}.RD140|x64.Build.0 = RD140|x64
 		{E673BFD1-E4D1-4B23-8366-40A027B293F6}.Release|x64.ActiveCfg = Release|x64
 		{E673BFD1-E4D1-4B23-8366-40A027B293F6}.Release|x64.Build.0 = Release|x64
 		{E673BFD1-E4D1-4B23-8366-40A027B293F6}.ReleaseDev|x64.ActiveCfg = ReleaseDev|x64
 		{E673BFD1-E4D1-4B23-8366-40A027B293F6}.ReleaseDev|x64.Build.0 = ReleaseDev|x64
-		{1590C3F0-7FAB-46F5-BC52-2BD301A0C4D7}.Debug|x64.ActiveCfg = Debug|x64
-		{1590C3F0-7FAB-46F5-BC52-2BD301A0C4D7}.Debug|x64.Build.0 = Debug|x64
+		{1590C3F0-7FAB-46F5-BC52-2BD301A0C4D7}.RD140|x64.ActiveCfg = RD140|x64
+		{1590C3F0-7FAB-46F5-BC52-2BD301A0C4D7}.RD140|x64.Build.0 = RD140|x64
 		{1590C3F0-7FAB-46F5-BC52-2BD301A0C4D7}.Release|x64.ActiveCfg = Release|x64
 		{1590C3F0-7FAB-46F5-BC52-2BD301A0C4D7}.Release|x64.Build.0 = Release|x64
 		{1590C3F0-7FAB-46F5-BC52-2BD301A0C4D7}.ReleaseDev|x64.ActiveCfg = ReleaseDev|x64
