@@ -21,7 +21,7 @@ public:
 
 	void updateDisplays(const std::list<VRiCommPort*> &devices);
 
-	virtual bool handleCommand(BaseDeviceHandler::VriCommand command, float value, bool boost);
+	virtual bool handleCommand(BaseDeviceHandler::VriCommandParameters command);
 	CommandQueue *queuedCommands();
 
 protected:

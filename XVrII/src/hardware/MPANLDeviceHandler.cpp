@@ -24,7 +24,7 @@ char* MPANLDeviceHandler::identPrefix2() const
 
 
 /*
-VRiCmdParser::VriCommand FMERDeviceHandler::a(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::a(char *cmd)
 {
 	switch (cmd[1])
 	{
@@ -110,7 +110,7 @@ VRiCmdParser::VriCommand FMERDeviceHandler::a(char *cmd)
 	}
 }
 
-VRiCmdParser::VriCommand FMERDeviceHandler::b(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::b(char *cmd)
 {
 	bool boost = (cmd[4] == '+' || cmd[4] =='-');
 	switch (cmd[3])
@@ -126,7 +126,7 @@ VRiCmdParser::VriCommand FMERDeviceHandler::b(char *cmd)
 	}
 }
 
-VRiCmdParser::VriCommand FMERDeviceHandler::d(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::d(char *cmd)
 {
 	switch (cmd[3])
 	{
@@ -137,7 +137,7 @@ VRiCmdParser::VriCommand FMERDeviceHandler::d(char *cmd)
 	}
 }
 
-VRiCmdParser::VriCommand FMERDeviceHandler::c(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::c(char *cmd)
 {
 	switch (cmd[1])
 	{
@@ -194,7 +194,7 @@ VRiCmdParser::VriCommand FMERDeviceHandler::c(char *cmd)
 	}
 }
 
-VRiCmdParser::VriCommand FMERDeviceHandler::e(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::e(char *cmd)
 {
 	switch (cmd[3])
 	{
@@ -233,7 +233,7 @@ VRiCmdParser::VriCommand FMERDeviceHandler::e(char *cmd)
 	
 }
 
-VRiCmdParser::VriCommand FMERDeviceHandler::h(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::h(char *cmd)
 {
 	switch (cmd[4])
 	{
@@ -255,7 +255,7 @@ VRiCmdParser::VriCommand FMERDeviceHandler::h(char *cmd)
 	}
 }
 
-VRiCmdParser::VriCommand FMERDeviceHandler::m(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::m(char *cmd)
 {
 	switch (cmd[3])
 	{
@@ -270,7 +270,7 @@ VRiCmdParser::VriCommand FMERDeviceHandler::m(char *cmd)
 	}
 }
 
-VRiCmdParser::VriCommand FMERDeviceHandler::n(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::n(char *cmd)
 {
 	if (cmd[1] == 'A') // NA....
 	{
@@ -320,7 +320,7 @@ VRiCmdParser::VriCommand FMERDeviceHandler::n(char *cmd)
 	}
 }
 
-VRiCmdParser::VriCommand FMERDeviceHandler::o(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::o(char *cmd)
 {
 	switch (cmd[3])
 	{
@@ -334,7 +334,7 @@ VRiCmdParser::VriCommand FMERDeviceHandler::o(char *cmd)
 }
 
 
-VRiCmdParser::VriCommand FMERDeviceHandler::s(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::s(char *cmd)
 {
 	switch (cmd[3])
 	{
@@ -368,7 +368,7 @@ VRiCmdParser::VriCommand FMERDeviceHandler::s(char *cmd)
 	}
 }
 
-VRiCmdParser::VriCommand FMERDeviceHandler::t(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::t(char *cmd)
 {
 	switch (cmd[4])
 	{
@@ -391,7 +391,7 @@ VRiCmdParser::VriCommand FMERDeviceHandler::t(char *cmd)
 	return None;
 }
 
-VRiCmdParser::VriCommand FMERDeviceHandler::v(char *cmd)
+VRiCmdParser::VriCommandParameters FMERDeviceHandler::v(char *cmd)
 {
 	m_boost = (cmd[4] == '-' || cmd[4] == '+');
 	switch (cmd[3])

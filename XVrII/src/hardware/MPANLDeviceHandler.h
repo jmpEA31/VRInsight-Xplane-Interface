@@ -13,18 +13,18 @@ public:
 	char* identPrefix2() const override;
 
 //protected:
-//	VriCommand a(char *cmd) override;
-//	VriCommand b(char *cmd) override;
-//	VriCommand c(char *cmd) override;
-//	VriCommand d(char *cmd) override;
-//	VriCommand e(char *cmd) override;
-//	VriCommand h(char *cmd) override;
-//	VriCommand m(char *cmd) override;
-//	VriCommand n(char *cmd) override;
-//	VriCommand o(char *cmd) override;
-//	VriCommand s(char *cmd) override;
-//	VriCommand t(char *cmd) override;
-//	VriCommand v(char *cmd) override;
+//	VriCommandParameters a(char *cmd) override;
+//	VriCommandParameters b(char *cmd) override;
+//	VriCommandParameters c(char *cmd) override;
+//	VriCommandParameters d(char *cmd) override;
+//	VriCommandParameters e(char *cmd) override;
+//	VriCommandParameters h(char *cmd) override;
+//	VriCommandParameters m(char *cmd) override;
+//	VriCommandParameters n(char *cmd) override;
+//	VriCommandParameters o(char *cmd) override;
+//	VriCommandParameters s(char *cmd) override;
+//	VriCommandParameters t(char *cmd) override;
+//	VriCommandParameters v(char *cmd) override;
 };
 
 #endif

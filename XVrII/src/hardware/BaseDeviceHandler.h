@@ -40,9 +40,14 @@ public:
 		CtlBn0, CtlBn1, CtlBn2, CtlBn3, CtlBn4, CtlBn5, CtlBn6, CtlBn7
 	};
 
-	void parseCommand(char *cmd);
-	float value() const;
-	bool boost() const;
+	struct VriCommandParameters
+	{
+		VriCommand m_command;
+		bool m_boosted;
+		float m_value;
+	};
+
+	void parseCommand(char *message);
 
 	void setPlane(BaseAircraft *plane);
 
@@ -50,38 +55,35 @@ public:
 	virtual char* identPrefix2() const;
 
 protected:
-	virtual VriCommand parse(char *cmd);
-	virtual VriCommand a(char *cmd);
-	virtual VriCommand b(char *cmd);
-	virtual VriCommand c(char *cmd);
-	virtual VriCommand d(char *cmd);
-	virtual VriCommand e(char *cmd);
-	virtual VriCommand f(char *cmd);
-	virtual VriCommand g(char *cmd);
-	virtual VriCommand h(char *cmd);
-	virtual VriCommand i(char *cmd);
-	virtual VriCommand j(char *cmd);
-	virtual VriCommand k(char *cmd);
-	virtual VriCommand l(char *cmd);
-	virtual VriCommand m(char *cmd);
-	virtual VriCommand n(char *cmd);
-	virtual VriCommand o(char *cmd);
-	virtual VriCommand p(char *cmd);
-	virtual VriCommand q(char *cmd);
-	virtual VriCommand r(char *cmd);
-	virtual VriCommand s(char *cmd);
-	virtual VriCommand t(char *cmd);
-	virtual VriCommand u(char *cmd);
-	virtual VriCommand v(char *cmd);
-	virtual VriCommand w(char *cmd);
-	virtual VriCommand x(char *cmd);
-	virtual VriCommand y(char *cmd);
-	virtual VriCommand z(char *cmd);
+	virtual VriCommandParameters parse(char *message);
+	virtual VriCommandParameters a(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters b(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters c(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters d(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters e(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters f(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters g(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters h(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters i(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters j(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters k(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters l(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters m(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters n(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters o(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters p(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters q(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters r(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters s(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters t(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters u(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters v(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters w(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters x(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters y(char *message, VriCommandParameters &command);
+	virtual VriCommandParameters z(char *message, VriCommandParameters &command);
 
 	float toFloat(char* cmd, int start, int end);
-
-	float m_value;
-	bool m_boost;
 
 private:
 	BaseAircraft *m_plane;

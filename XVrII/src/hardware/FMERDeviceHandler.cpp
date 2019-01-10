@@ -25,328 +25,376 @@ char* FMERDeviceHandler::identPrefix2() const
 //--------------------------------------------------
 // Parse a message from the hardware starting with A
 //--------------------------------------------------
-BaseDeviceHandler::VriCommand FMERDeviceHandler::a(char *cmd)
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::a(char *message, VriCommandParameters &command)
 {
-	if (strncmp("ALT", cmd, 3) == 0)
+	if (strncmp("ALT", message, 3) == 0)
 	{
 		// Handle ALT... messages
-		char *subcmd = &cmd[3];
+		char *subcmd = &message[3];
 
-		if (strncmp("HLD", subcmd, 3) == 0) return AptAltHold;
-		if (strncmp("SEL", subcmd, 3) == 0) return AptAltSel;
-		else if (cmd[3] >= '0' && cmd[3] <= '9')
+		if (strncmp("HLD", subcmd, 3) == 0) command.m_command = AptAltHold;
+		else if (strncmp("SEL", subcmd, 3) == 0) command.m_command = AptAltSel;
+		else if (message[3] >= '0' && message[3] <= '9')
 		{
-			m_value = 100.0f * toFloat(cmd, 3, 5);
-			return cmd[6] == '+' ? AltNNNup : AltNNNdn;
+			command.m_value = 100.0f * toFloat(message, 3, 5);
+			command.m_command = (message[6] == '+' ? AltNNNup : AltNNNdn);
 		}
 	}
-	else if (strncmp("APT", cmd, 3) == 0)
+	else if (strncmp("APT", message, 3) == 0)
 	{
 		// Handle APT... messages
-		char *subcmd = &cmd[3];
+		char *subcmd = &message[3];
 
-		if (strncmp("AT+", subcmd, 3) == 0) return AptAtArm;
-		if (strncmp("AT-", subcmd, 3) == 0) return AptAtDisarm;
-		if (strncmp("APP", subcmd, 3) == 0) return AptApp;					// combines APP+ and APP-
-		if (strncmp("CMDA", subcmd, 4) == 0) return AptCmdA;
-		if (strncmp("CMDB", subcmd, 4) == 0) return AptCmdB;
-		if (strncmp("CMDC", subcmd, 4) == 0) return AptCmdC;
-		if (strncmp("CWSA", subcmd, 4) == 0) return AptCwsA;
-		if (strncmp("CWSB", subcmd, 4) == 0) return AptCwsB;
-		if (strncmp("FD+", subcmd, 3) == 0) return AptFdArm;
-		if (strncmp("FD-", subcmd, 3) == 0) return AptFdDisarm;
-		if (strncmp("LOC", subcmd, 3) == 0) return AptLoc;					// combines APP+ and APP-
-		if (strncmp("LNAV", subcmd, 4) == 0) return AptLNav;				// combines LNAV+ and LNAV-
-		if (strncmp("MAST+", subcmd, 5) == 0) return AptMasterConnect;
-		if (strncmp("MAST-", subcmd, 5) == 0) return AptMasterDisconnect;
-		if (strncmp("TOGA", subcmd, 4) == 0) return AptToGa;				// combines TOGA+, TOGA-, TOGN+, TOGN-
-		if (strncmp("VNAV", subcmd, 4) == 0) return AptVNav;				// combines VNAV+ and VNAV-
+		if (strncmp("AT+", subcmd, 3) == 0) command.m_command = AptAtArm;
+		else if (strncmp("AT-", subcmd, 3) == 0) command.m_command = AptAtDisarm;
+		else if (strncmp("APP", subcmd, 3) == 0) command.m_command = AptApp;				// combines APP+ and APP-
+		else if (strncmp("CMDA", subcmd, 4) == 0) command.m_command = AptCmdA;
+		else if (strncmp("CMDB", subcmd, 4) == 0) command.m_command = AptCmdB;
+		else if (strncmp("CMDC", subcmd, 4) == 0) command.m_command = AptCmdC;
+		else if (strncmp("CWSA", subcmd, 4) == 0) command.m_command = AptCwsA;
+		else if (strncmp("CWSB", subcmd, 4) == 0) command.m_command = AptCwsB;
+		else if (strncmp("FD+", subcmd, 3) == 0) command.m_command = AptFdArm;
+		else if (strncmp("FD-", subcmd, 3) == 0) command.m_command = AptFdDisarm;
+		else if (strncmp("LOC", subcmd, 3) == 0) command.m_command = AptLoc;				// combines APP+ and APP-
+		else if (strncmp("LNAV", subcmd, 4) == 0) command.m_command = AptLNav;				// combines LNAV+ and LNAV-
+		else if (strncmp("MAST+", subcmd, 5) == 0) command.m_command = AptMasterConnect;
+		else if (strncmp("MAST-", subcmd, 5) == 0) command.m_command = AptMasterDisconnect;
+		else if (strncmp("TOGA", subcmd, 4) == 0) command.m_command = AptToGa;				// combines TOGA+, TOGA-, TOGN+, TOGN-
+		else if (strncmp("VNAV", subcmd, 4) == 0) command.m_command = AptVNav;				// combines VNAV+ and VNAV-
 	}
 	
-	return BaseDeviceHandler::a(cmd);
+	return (command.m_command == None ? BaseDeviceHandler::a(message, command) : command);
 }
 
 //---------------------------------------------------
 // Parse a message from the hardware starting with B
 //---------------------------------------------------
-BaseDeviceHandler::VriCommand FMERDeviceHandler::b(char *cmd)
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::b(char *message, VriCommandParameters &command)
 {
-	if (strncmp("BAR", cmd, 3) == 0)
+	if (strncmp("BAR", message, 3) == 0)
 	{
 		// Handle BAR... messages
-		char *subcmd = &cmd[3];
-		// bool boost = (subcmd[1] == '+' || cmd[1] == '-'); -> BAR++/BAR-- treated as BAR+/BAR- for now
+		char *subcmd = &message[3];
+		command.m_boosted = (subcmd[1] == '+' || subcmd[1] == '-');
 
 		switch (subcmd[0])
 		{
 		case '+':
-			return EfisBaroUp;
+			command.m_command = EfisBaroUp;
+			break;
 		case '-':
-			return EfisBaroDown;
+			command.m_command = EfisBaroDown;
+			break;
 		case 'S':
-			return EfisBaroReset;
+			command.m_command = EfisBaroReset;
+			break;
 		default:
 			break;
 		}
 	}
-	return BaseDeviceHandler::b(cmd);
+
+	return (command.m_command == None ? BaseDeviceHandler::b(message, command) : command);
 }
 
 //---------------------------------------------------
 // Parse a message from the hardware starting with C
 //---------------------------------------------------
-BaseDeviceHandler::VriCommand FMERDeviceHandler::c(char *cmd)
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::c(char *message, VriCommandParameters &command)
 {
-	if (strncmp("COM", cmd, 3) == 0)
+	if (strncmp("COM", message, 3) == 0)
 	{
 		// Handle COM... messages
-		char *subcmd = &cmd[3];
+		char *subcmd = &message[3];
 
-		if (strncmp("AUX", subcmd, 3) == 0) return ComAux;
-		if (strncmp("SEL1", subcmd, 4) == 0) return ComSel1;
-		if (strncmp("SEL2", subcmd, 4) == 0) return ComSel2;
+		if (strncmp("AUX", subcmd, 3) == 0) command.m_command = ComAux;
+		else if (strncmp("SEL1", subcmd, 4) == 0) command.m_command = ComSel1;
+		else if (strncmp("SEL2", subcmd, 4) == 0) command.m_command = ComSel2;
 
 		switch (subcmd[0])
 		{
 		case 's':
-			m_value = 10000 + toFloat(cmd, 4, 7);
-			return Com1SNNN;
+			command.m_value = 10000 + toFloat(message, 4, 7);
+			command.m_command = Com1SNNN;
+			break;
 		case 'x':
-			m_value = 10000 + toFloat(cmd, 4, 7);
-			return Com1XNNN;
+			command.m_value = 10000 + toFloat(message, 4, 7);
+			command.m_command = Com1XNNN;
+			break;
 		case 'S':
-			m_value = 10000 + toFloat(cmd, 4, 7);
-			return Com2SNNN;
+			command.m_value = 10000 + toFloat(message, 4, 7);
+			command.m_command = Com2SNNN;
+			break;
 		case 'X':
-			m_value = 10000 + toFloat(cmd, 4, 7);
-			return Com2XNNN;
+			command.m_value = 10000 + toFloat(message, 4, 7);
+			command.m_command = Com2XNNN;
 		default:
 			break;
 		}
 	}
-	return BaseDeviceHandler::c(cmd);
+
+	return (command.m_command == None ? BaseDeviceHandler::c(message, command) : command);
 }
 
 //---------------------------------------------------
 // Parse a message from the hardware starting with D
 //---------------------------------------------------
-BaseDeviceHandler::VriCommand FMERDeviceHandler::d(char *cmd)
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::d(char *message, VriCommandParameters &command)
 {
-	if (strncmp("DME", cmd, 3) == 0)
+	if (strncmp("DME", message, 3) == 0)
 	{
 		// Handle DME... messages
-		char *subcmd = &cmd[3];
+		char *subcmd = &message[3];
 
-		if (strncmp("SEL1", subcmd, 4) == 0) return DmeSel1;
-		if (strncmp("SEL2", subcmd, 4) == 0) return DmeSel2;
+		if (strncmp("SEL1", subcmd, 4) == 0) command.m_command = DmeSel1;
+		else if (strncmp("SEL2", subcmd, 4) == 0) command.m_command = DmeSel2;
 	}
 
-	return BaseDeviceHandler::d(cmd);
+	return (command.m_command == None ? BaseDeviceHandler::d(message, command) : command);
 }
-
 
 //---------------------------------------------------
 // Parse a message from the hardware starting with E
 //---------------------------------------------------
-BaseDeviceHandler::VriCommand FMERDeviceHandler::e(char *cmd)
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::e(char *message, VriCommandParameters &command)
 {
-	if (strncmp("EFI", cmd, 3) == 0)
+	if (strncmp("EFI", message, 3) == 0)
 	{
 		// Handle EFI... messages
-		char *subcmd = &cmd[3];
+		char *subcmd = &message[3];
 
-		if (strncmp("ADF1", subcmd, 4) == 0) return EfisVor1Down;
-		if (strncmp("ADF2", subcmd, 4) == 0) return EfisVor2Down;
-		if (strncmp("ARPT", subcmd, 4) == 0) return EfisArpt;
-		if (strncmp("DATA", subcmd, 4) == 0) return EfisData;
-		if (strncmp("FPV", subcmd, 3) == 0) return EfisFpv;
-		if (strncmp("MTRS", subcmd, 4) == 0) return EfisMeters;
-		if (strncmp("POS", subcmd, 3) == 0) return EfisPos;
-		if (strncmp("STA", subcmd, 3) == 0) return EfisSta;
-		if (strncmp("TERR", subcmd, 4) == 0) return EfisTerr;
-		if (strncmp("VOR1", subcmd, 4) == 0) return EfisVor1Up;
-		if (strncmp("VOR2", subcmd, 4) == 0) return EfisVor2Up;
-		if (strncmp("WPT", subcmd, 3) == 0) return EfisWpt;
-		if (strncmp("WX", subcmd, 2) == 0) return EfisWx;
+		if (strncmp("ADF1", subcmd, 4) == 0) command.m_command = EfisVor1Down;
+		else if (strncmp("ADF2", subcmd, 4) == 0) command.m_command = EfisVor2Down;
+		else if (strncmp("ARPT", subcmd, 4) == 0) command.m_command = EfisArpt;
+		else if (strncmp("DATA", subcmd, 4) == 0) command.m_command = EfisData;
+		else if (strncmp("FPV", subcmd, 3) == 0) command.m_command = EfisFpv;
+		else if (strncmp("MTRS", subcmd, 4) == 0) command.m_command = EfisMeters;
+		else if (strncmp("POS", subcmd, 3) == 0) command.m_command = EfisPos;
+		else if (strncmp("STA", subcmd, 3) == 0) command.m_command = EfisSta;
+		else if (strncmp("TERR", subcmd, 4) == 0) command.m_command = EfisTerr;
+		else if (strncmp("VOR1", subcmd, 4) == 0) command.m_command = EfisVor1Up;
+		else if (strncmp("VOR2", subcmd, 4) == 0) command.m_command = EfisVor2Up;
+		else if (strncmp("WPT", subcmd, 3) == 0) command.m_command = EfisWpt;
+		else if (strncmp("WX", subcmd, 2) == 0) command.m_command = EfisWx;
 	}
 
-	return BaseDeviceHandler::e(cmd);
+	return (command.m_command == None ? BaseDeviceHandler::e(message, command) : command);
 }
 
-BaseDeviceHandler::VriCommand FMERDeviceHandler::h(char *cmd)
+//---------------------------------------------------
+// Parse a message from the hardware starting with H
+//---------------------------------------------------
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::h(char *message, VriCommandParameters &command)
 {
-	switch (cmd[4])
+	if (strncmp("HDG", message, 3) == 0)
 	{
-	case 'D':				// HDGHDG
-		return AptHdgSel;
-	case 'L':				// HDGHLD
-		return AptHdgHold;
-	default:				// HDGnnn
-		{
-			if (cmd[3] >= '0' && cmd[3] <= '9')
-			{
-				m_value = (float)(((cmd[3] - '0') * 10) + (cmd[4] - '0')) * 10 + (cmd[5] - '0');
-				return cmd[6] == '+' ? HdgNNNup : HdgNNNdn;
+		// Handle HDG... messages
+		char *subcmd = &message[3];
 
-			}
-			else
-				return None;
+		if (strncmp("HDG", subcmd, 3) == 0) command.m_command = AptHdgSel;
+		else if (strncmp("HLD", subcmd, 3) == 0) command.m_command = AptHdgHold;
+		else if (message[3] >= '0' && message[3] <= '9')
+		{
+			command.m_value = 100.0f * toFloat(message, 3, 5);
+			command.m_command = (message[6] == '+' ? HdgNNNup : HdgNNNdn);
 		}
 	}
+
+	return (command.m_command == None ? BaseDeviceHandler::h(message, command) : command);
 }
 
-BaseDeviceHandler::VriCommand FMERDeviceHandler::m(char *cmd)
+//---------------------------------------------------
+// Parse a message from the hardware starting with M
+//---------------------------------------------------
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::m(char *message, VriCommandParameters &command)
 {
-	switch (cmd[3])
+	// MIN+/MIN-/MINS ?
+	switch (message[3])
 	{
 	case '+':
-		return EfisMinsUp;
+		command.m_command = EfisMinsUp;
+		break;
 	case '-':
-		return EfisMinsDown;
+		command.m_command = EfisMinsDown;
+		break;
 	case 'S':
-		return EfisMinsReset;
+		command.m_command = EfisMinsReset;
+		break;
 	default:
-		return None;
+		break;
 	}
+
+	return (command.m_command == None ? BaseDeviceHandler::m(message, command) : command);
 }
 
-BaseDeviceHandler::VriCommand FMERDeviceHandler::n(char *cmd)
+//---------------------------------------------------
+// Parse a message from the hardware starting with N
+//---------------------------------------------------
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::n(char *message, VriCommandParameters &command)
 {
-	if (cmd[1] == 'A') // NA....
+	if (strncmp("NAV", message, 3) == 0)
 	{
-		if (cmd[4] == 'E') // NAVSEL1/NAVSEL2
+		// Handle NAV... messages
+		char *subcmd = &message[3];
+
+		if (strncmp("AUX", subcmd, 3) == 0) command.m_command = NavAux;
+		else if (strncmp("SEL1", subcmd, 4) == 0) command.m_command = NavSel1;
+		else if (strncmp("SEL2", subcmd, 4) == 0) command.m_command = NavSel2;
+		else
 		{
-			return cmd[6] == '1' ? NavSel1 : NavSel2;
-		}
-		switch (cmd[3])
-		{
-		case 's':
-			m_value = 10000 + toFloat(cmd,4,7);
-			return Nav1SNNN;
-		case 'x':
-			m_value = 10000 + toFloat(cmd,4,7);
-			return Nav1XNNN;
-		case 'S':
-			m_value = 10000 + toFloat(cmd,4,7);
-			return Nav2SNNN;
-		case 'X':
-			m_value = 10000 + toFloat(cmd,4,7);
-			return Nav2XNNN;
-		case 'A':
-			return NavAux;
-		default:
-			return None;
+			switch (subcmd[0])
+			{
+			case 's':
+				command.m_value = 10000 + toFloat(message, 4, 7);
+				command.m_command = Nav1SNNN;
+				break;
+			case 'x':
+				command.m_value = 10000 + toFloat(message, 4, 7);
+				command.m_command = Nav1XNNN;
+				break;
+			case 'S':
+				command.m_value = 10000 + toFloat(message, 4, 7);
+				command.m_command = Nav2SNNN;
+				break;
+			case 'X':
+				command.m_value = 10000 + toFloat(message, 4, 7);
+				command.m_command = Nav2XNNN;
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
-	switch (cmd[2])
+	// NDM / NDR ????
+	switch (message[2])
 	{
 	case 'M':
-		if (cmd[3] == '+')
-			return EfisModeUp;
-		else if (cmd[3] == '-')
-			return EfisModeDown;
+		if (message[3] == '+')
+			command.m_command = EfisModeUp;
+		else if (message[3] == '-')
+			command.m_command = EfisModeDown;
 		else
-			return EfisCtr;
+			command.m_command = EfisCtr;
+		break;
 	case 'R':
-		if (cmd[3] == '+')
-			return EfisZoomOut;
-		else if (cmd[3] == '-')
-			return EfisZoomIn;
+		if (message[3] == '+')
+			command.m_command = EfisZoomOut;
+		else if (message[3] == '-')
+			command.m_command = EfisZoomIn;
 		else
-			return EfisTfc;
+			command.m_command = EfisTfc;
+		break;
 	default:
-		return None;
+		break;
 	}
+
+	return (command.m_command == None ? BaseDeviceHandler::n(message, command) : command);
 }
 
 //---------------------------------------------------
 // Parse a message from the hardware starting with O
 //---------------------------------------------------
-BaseDeviceHandler::VriCommand FMERDeviceHandler::o(char *cmd)
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::o(char *message, VriCommandParameters &command)
 {
-	if (strncmp("OBS", cmd, 3) == 0)
+	if (strncmp("OBS", message, 3) == 0)
 	{
 		// Handle EFI... messages
-		char *subcmd = &cmd[3];
+		char *subcmd = &message[3];
 
-		if (strncmp("+", subcmd, 1) == 0) return ObsUp;
-		if (strncmp("-", subcmd, 1) == 0) return ObsDown;
+		if (strncmp("+", subcmd, 1) == 0) command.m_command = ObsUp;
+		else if (strncmp("-", subcmd, 1) == 0) command.m_command = ObsDown;
 	}
 
-	return BaseDeviceHandler::o(cmd);
+	return (command.m_command == None ? BaseDeviceHandler::o(message, command) : command);
 }
 
 
-BaseDeviceHandler::VriCommand FMERDeviceHandler::s(char *cmd)
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::s(char *message, VriCommandParameters &command)
 {
-	switch (cmd[3])
+	switch (message[3])
 	{
 	case 'L':
-		return AptFlch;
+		command.m_command = AptFlch;
+		break;
 	case 'N':
-		return AptN1;
+		command.m_command = AptN1;
+		break;
 	case 'S':
-		if (cmd[4] == 'E')
-			return AptSpdSel;
+		if (message[4] == 'E')
+			command.m_command = AptSpdSel;
 		else
-			return AptSpd;
+			command.m_command = AptSpd;
+		break;
 	default:
 		{
-			if (cmd[3] >= '0' && cmd[3] <= '9')
+			if (message[3] >= '0' && message[3] <= '9')
 			{
-				m_value = (float)(((cmd[3] - '0') * 10) + (cmd[4] - '0')) * 10 + (cmd[5] - '0');
-				switch (cmd[6])
+				command.m_value = (float)(((message[3] - '0') * 10) + (message[4] - '0')) * 10 + (message[5] - '0');
+				switch (message[6])
 				{
 				case '-':
-					return SpdNNNdn;
+					command.m_command = SpdNNNdn;
+					break;
 				case '+':
-					return SpdNNNup;
+					command.m_command = SpdNNNup;
+					break;
 				default:
-					return SpdNNN;
+					command.m_command = SpdNNN;
+					break;
 				}
 			}
 			else
-				return None;
+				break;
 		}
 	}
+
+	return (command.m_command == None ? BaseDeviceHandler::s(message, command) : command);
 }
 
-BaseDeviceHandler::VriCommand FMERDeviceHandler::t(char *cmd)
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::t(char *message, VriCommandParameters &command)
 {
-	switch (cmd[4])
+	switch (message[4])
 	{
 	case 'E':
-		return TrnSel;
+		command.m_command = TrnSel;
+		break;
 	case 'U':
-		return TrnAux;
+		command.m_command = TrnAux;
+		break;
 	}
 
-	switch (cmd[3])
+	switch (message[3])
 	{
 	case 'S':
-		m_value =  toFloat(cmd,4,7);
-		return TrnSNNN;
+		command.m_value =  toFloat(message,4,7);
+		command.m_command = TrnSNNN;
+		break;
 	case 'X':
-		m_value =  toFloat(cmd,4,7);
-		return TrnXNNN;
+		command.m_value =  toFloat(message,4,7);
+		command.m_command = TrnXNNN;
+		break;
 	}
 
-	return None;
+	return (command.m_command == None ? BaseDeviceHandler::t(message, command) : command);
 }
 
-BaseDeviceHandler::VriCommand FMERDeviceHandler::v(char *cmd)
+BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::v(char *message, VriCommandParameters &command)
 {
-	m_boost = (cmd[4] == '-' || cmd[4] == '+');
-	switch (cmd[3])
+	command.m_boosted = (message[4] == '-' || message[4] == '+');
+	switch (message[3])
 	{
 	case 'H':
-		return AptVvsHold;
+		command.m_command = AptVvsHold;
+		break;
 	case '-':
-		return AptVsDown;
+		command.m_command = AptVsDown;
+		break;
 	case '+':
-		return AptVsUp;
+		command.m_command = AptVsUp;
+		break;
 	default:
-		return None;
+		break;
 	}
+
+	return (command.m_command == None ? BaseDeviceHandler::v(message, command) : command);
 }

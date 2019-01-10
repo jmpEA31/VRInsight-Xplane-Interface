@@ -55,11 +55,11 @@ EadtX737::EadtX737()
 
 #define COMMAND(a) case BaseDeviceHandler::##a: scheduleCommand(m_ref##a); return true;
 
-bool EadtX737::handleCommand(BaseDeviceHandler::VriCommand command, float value, bool boost)
+bool EadtX737::handleCommand(BaseDeviceHandler::VriCommandParameters command)
 {
 	return false;
 
-	switch (command)
+	switch (command.m_command)
 	{
 	case BaseDeviceHandler::AptAtArm:
 		if (XPLMGetDatai(m_refAutoThrottleStatus) != 1)
@@ -118,7 +118,7 @@ bool EadtX737::handleCommand(BaseDeviceHandler::VriCommand command, float value,
 	COMMAND(AptApp);
 
 	default:
-		return BaseAircraft::handleCommand(command, value, boost);
+		return BaseAircraft::handleCommand(command);
 	}
 }
 

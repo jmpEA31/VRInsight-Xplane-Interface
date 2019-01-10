@@ -13,18 +13,18 @@ public:
 	char* identPrefix2() const override;
 
 protected:
-	VriCommand a(char *cmd) override;
-	VriCommand b(char *cmd) override;
-	VriCommand c(char *cmd) override;
-	VriCommand d(char *cmd) override;
-	VriCommand e(char *cmd) override;
-	VriCommand h(char *cmd) override;
-	VriCommand m(char *cmd) override;
-	VriCommand n(char *cmd) override;
-	VriCommand o(char *cmd) override;
-	VriCommand s(char *cmd) override;
-	VriCommand t(char *cmd) override;
-	VriCommand v(char *cmd) override;
+	VriCommandParameters a(char *message, VriCommandParameters &command) override;
+	VriCommandParameters b(char *message, VriCommandParameters &command) override;
+	VriCommandParameters c(char *message, VriCommandParameters &command) override;
+	VriCommandParameters d(char *message, VriCommandParameters &command) override;
+	VriCommandParameters e(char *message, VriCommandParameters &command) override;
+	VriCommandParameters h(char *message, VriCommandParameters &command) override;
+	VriCommandParameters m(char *message, VriCommandParameters &command) override;
+	VriCommandParameters n(char *message, VriCommandParameters &command) override;
+	VriCommandParameters o(char *message, VriCommandParameters &command) override;
+	VriCommandParameters s(char *message, VriCommandParameters &command) override;
+	VriCommandParameters t(char *message, VriCommandParameters &command) override;
+	VriCommandParameters v(char *message, VriCommandParameters &command) override;
 };
 
 #endif

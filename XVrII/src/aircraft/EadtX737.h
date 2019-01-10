@@ -8,7 +8,7 @@ class EadtX737 : public BaseAircraft
 public:
 	EadtX737();
 
-	bool handleCommand(BaseDeviceHandler::VriCommand command, float value, bool boost) override;
+	bool handleCommand(BaseDeviceHandler::VriCommandParameters command) override;
 
 	static bool isLoaded();
 

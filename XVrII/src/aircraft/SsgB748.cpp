@@ -181,19 +181,7 @@ void SsgB748::updateHeading(const std::list<VRiCommPort*> &devices)
 
 
 #define COMMAND(a) case BaseDeviceHandler::##a: scheduleCommand(m_ref##a); return true;
-#define DISPLAYCOMMAND(a) case BaseDeviceHandler::##a: { std::lock_guard<std::mutex> guard(m_commandCounterMutex); m_displayCommandsScheduled++; scheduleCommand(m_ref##a); return true; }
-#define DISPLAYDOUBLECOMMAND(a) case BaseDeviceHandler::##a: { std::lock_guard<std::mutex> guard(m_commandCounterMutex); m_displayCommandsScheduled+=2; scheduleCommand(m_ref##a, 2); return true; }
-
-#define NUM_TOGGLE_SW (38)
-#define TOGGLE_AP_DISENGAGE_BAR (14)
-#define TOGGLE_FD_LEFT (23)
-#define TOGGLE_AT (29)
-
-#define NUM_APBUTTON_SW (15)
-#define BUTTONAP_DISENGAGE_BAR (14)
-
-//static int toggles[NUM_TOGGLE_SW];
-//static int apbuttons[NUM_APBUTTON_SW];
+#define DISPLAYCOMMAND(a,b) case BaseDeviceHandler::##a: { std::lock_guard<std::mutex> guard(m_commandCounterMutex); m_displayCommandsScheduled+=b; scheduleCommand(m_ref##a, b); return true; }
 
 void SsgB748::relayToggle(XPLMDataRef ref, float &value)
 {
@@ -204,19 +192,19 @@ void SsgB748::relayToggle(XPLMDataRef ref, float &value)
 	XPLMSetDataf(ref, value);
 }
 
-bool SsgB748::handleCommand(BaseDeviceHandler::VriCommand command, float value, bool boost)
+bool SsgB748::handleCommand(BaseDeviceHandler::VriCommandParameters command)
 {
-	switch (command)
+	switch (command.m_command)
 	{
-		DISPLAYCOMMAND(AltNNNup);
-		DISPLAYCOMMAND(AltNNNdn);
+		DISPLAYCOMMAND(AltNNNup, 1);
+		DISPLAYCOMMAND(AltNNNdn, 1);
 		COMMAND(AptAltSel);
 
-		DISPLAYDOUBLECOMMAND(HdgNNNup);
-		DISPLAYDOUBLECOMMAND(HdgNNNdn);
+		DISPLAYCOMMAND(HdgNNNup, 2);
+		DISPLAYCOMMAND(HdgNNNdn, 2);
 
-		DISPLAYDOUBLECOMMAND(SpdNNNup);
-		DISPLAYDOUBLECOMMAND(SpdNNNdn);
+		DISPLAYCOMMAND(SpdNNNup, 2);
+		DISPLAYCOMMAND(SpdNNNdn, 2);
 		COMMAND(AptSpdSel);
 
 	case BaseDeviceHandler::EfisTfc:
@@ -350,7 +338,7 @@ bool SsgB748::handleCommand(BaseDeviceHandler::VriCommand command, float value, 
 	COMMAND(AptApp);
 
 	default:
-		return BaseAircraft::handleCommand(command, value, boost);
+		return BaseAircraft::handleCommand(command);
 	}
 }
 

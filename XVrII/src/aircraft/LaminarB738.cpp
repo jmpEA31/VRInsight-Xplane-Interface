@@ -55,9 +55,9 @@ LaminarB738::LaminarB738()
 
 #define COMMAND(a) case BaseDeviceHandler::##a: scheduleCommand(m_ref##a); return true;
 
-bool LaminarB738::handleCommand(BaseDeviceHandler::VriCommand command, float value, bool boost)
+bool LaminarB738::handleCommand(BaseDeviceHandler::VriCommandParameters command)
 {
-	switch (command)
+	switch (command.m_command)
 	{
 	case BaseDeviceHandler::AptAtArm:
 		if (XPLMGetDatai(m_refAutoThrottleStatus) != 1)
@@ -116,7 +116,7 @@ bool LaminarB738::handleCommand(BaseDeviceHandler::VriCommand command, float val
 	COMMAND(AptApp);
 
 	default:
-		return BaseAircraft::handleCommand(command, value, boost);
+		return BaseAircraft::handleCommand(command);
 	}
 }
 

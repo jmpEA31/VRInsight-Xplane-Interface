@@ -10,15 +10,11 @@ public:
 	SsgB748();
 	virtual ~SsgB748();
 
-	bool handleCommand(BaseDeviceHandler::VriCommand command, float value, bool boost) override;
+	bool handleCommand(BaseDeviceHandler::VriCommandParameters command) override;
 
 	static bool isLoaded();
 
 protected:
-	//static const char *SSG_B747_ND;
-	//static const char *S_B747_EFIS;
-	//static const char *LAM_B747_TOGGLE;
-
 	bool hardwareDisplayUpdateAllowed() override;
 	void updateAltitude(const std::list<VRiCommPort*> &devices) override;
 	void updateHeading(const std::list<VRiCommPort*> &devices) override;
@@ -32,25 +28,6 @@ protected:
 
 	XPLMCommandRef m_refSpdNNNup;
 	XPLMCommandRef m_refSpdNNNdn;
-
-	//XPLMCommandRef m_refEfisVor1Up;
-	//XPLMCommandRef m_refEfisVor1Down;
-	//XPLMCommandRef m_refEfisVor2Up;
-	//XPLMCommandRef m_refEfisVor2Down;
-
-	//XPLMCommandRef m_refEfisMinsReset;
-	//XPLMCommandRef m_refEfisMeters;
-	//XPLMCommandRef m_refEfisFpv;
-
-	//XPLMCommandRef m_refEfisWx;
-	//XPLMCommandRef m_refEfisSta;
-	//XPLMCommandRef m_refEfisWpt;
-	//XPLMCommandRef m_refEfisArpt;
-	//XPLMCommandRef m_refEfisData;
-	//XPLMCommandRef m_refEfisPos;
-	//XPLMCommandRef m_refEfisTerr;
-	//XPLMCommandRef m_refEfisCtr;
-	//XPLMCommandRef m_refEfisTfc;
 
 	XPLMCommandRef m_refAptN1;
 	XPLMCommandRef m_refAptSpd;
@@ -72,9 +49,6 @@ protected:
 
 	XPLMCommandRef m_refAptLoc;
 	XPLMCommandRef m_refAptApp;
-
-	//XPLMDataRef	m_refToggleSwitchPositions;
-	//XPLMDataRef	m_refApButtonSwitchPositions;
 
 	XPLMCommandRef m_refAutoThrottleToggle;
 	XPLMCommandRef m_refFlightDirectorTogglePt;
@@ -111,10 +85,7 @@ protected:
 	XPLMDataRef m_refVorAdf2;
 	float m_vorAdf2;
 
-
-
 	XPLMDataRef m_refTriggerCtr;
-
 	XPLMDataRef m_refTemp;
 
 private:

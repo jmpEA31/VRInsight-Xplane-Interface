@@ -8,7 +8,7 @@ class LaminarB744 : public BaseAircraft
 public:
 	LaminarB744();
 
-	bool handleCommand(BaseDeviceHandler::VriCommand command, float value, bool boost) override;
+	bool handleCommand(BaseDeviceHandler::VriCommandParameters command) override;
 
 	static bool isLoaded();
 

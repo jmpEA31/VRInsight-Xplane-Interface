@@ -392,9 +392,9 @@ void BaseAircraft::simulateKey(int keyNumber)
 
 
 
-bool BaseAircraft::handleCommand(BaseDeviceHandler::VriCommand command, float value, bool boost)
+bool BaseAircraft::handleCommand(BaseDeviceHandler::VriCommandParameters command)
 {
-	switch (command)
+	switch (command.m_command)
 	{
 	case BaseDeviceHandler::CtlBn0:
 		simulateKey(0);
@@ -435,18 +435,18 @@ bool BaseAircraft::handleCommand(BaseDeviceHandler::VriCommand command, float va
 		m_mode = Comm2;
 		return true;
 	case BaseDeviceHandler::Com1SNNN:
-		m_hardwareComm1Stdby = (int)value;
+		m_hardwareComm1Stdby = (int)command.m_value;
 		return true;
 	case BaseDeviceHandler::Com1XNNN:
 		m_hardwareComm1Stdby = m_hardwareComm1;
-		m_hardwareComm1 = (int)value;
+		m_hardwareComm1 = (int)command.m_value;
 		return true;
 	case BaseDeviceHandler::Com2SNNN:
-		m_hardwareComm2Stdby = (int)value;
+		m_hardwareComm2Stdby = (int)command.m_value;
 		return true;
 	case BaseDeviceHandler::Com2XNNN:
 		m_hardwareComm2Stdby = m_hardwareComm2;
-		m_hardwareComm2 = (int)value;
+		m_hardwareComm2 = (int)command.m_value;
 		return true;
 
 	case BaseDeviceHandler::NavSel1:
@@ -464,18 +464,18 @@ bool BaseAircraft::handleCommand(BaseDeviceHandler::VriCommand command, float va
 		m_mode = Nav2;
 		return true;
 	case BaseDeviceHandler::Nav1SNNN:
-		m_hardwareNav1Stdby = (int)value;
+		m_hardwareNav1Stdby = (int)command.m_value;
 		return true;
 	case BaseDeviceHandler::Nav1XNNN:
 		m_hardwareNav1Stdby = m_hardwareNav1;
-		m_hardwareNav1 = (int)value;
+		m_hardwareNav1 = (int)command.m_value;
 		return true;
 	case BaseDeviceHandler::Nav2SNNN:
-		m_hardwareNav2Stdby = (int)value;
+		m_hardwareNav2Stdby = (int)command.m_value;
 		return true;
 	case BaseDeviceHandler::Nav2XNNN:
 		m_hardwareNav2Stdby = m_hardwareNav2;
-		m_hardwareNav2 = (int)value;
+		m_hardwareNav2 = (int)command.m_value;
 		return true;
 
 	case BaseDeviceHandler::DmeSel1:
@@ -500,7 +500,7 @@ bool BaseAircraft::handleCommand(BaseDeviceHandler::VriCommand command, float va
 		return true;
 	case BaseDeviceHandler::TrnSNNN:
 //	case VRiCmdParser::TrnXNNN:
-		m_hardwareTransponderCode = (int)value;
+		m_hardwareTransponderCode = (int)command.m_value;
 		return true;
 
 	case BaseDeviceHandler::TrnAux:
@@ -513,16 +513,16 @@ bool BaseAircraft::handleCommand(BaseDeviceHandler::VriCommand command, float va
 
 	case BaseDeviceHandler::AltNNNup:
 	case BaseDeviceHandler::AltNNNdn:
-		m_hardwareAltitude = value;
+		m_hardwareAltitude = command.m_value;
 		return true;
 	case BaseDeviceHandler::SpdNNN:
 	case BaseDeviceHandler::SpdNNNup:
 	case BaseDeviceHandler::SpdNNNdn:
-		m_hardwareSpeed = value;
+		m_hardwareSpeed = command.m_value;
 		return true;
 	case BaseDeviceHandler::HdgNNNup:
 	case BaseDeviceHandler::HdgNNNdn:
-		m_hardwareHeading = value;
+		m_hardwareHeading = command.m_value;
 		return true;
 	case BaseDeviceHandler::EfisZoomIn:
 		efisZoomIn();

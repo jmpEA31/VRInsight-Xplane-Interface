@@ -127,12 +127,12 @@ void LaminarB744::updateHeading(const std::list<VRiCommPort*> &devices)
 static int toggles[NUM_TOGGLE_SW];
 static int apbuttons[NUM_APBUTTON_SW];
 
-bool LaminarB744::handleCommand(BaseDeviceHandler::VriCommand command, float value, bool boost)
+bool LaminarB744::handleCommand(BaseDeviceHandler::VriCommandParameters command)
 {
 	XPLMGetDatavi(m_refToggleSwitchPositions, toggles, 0, NUM_TOGGLE_SW);
 	XPLMGetDatavi(m_refApButtonSwitchPositions, apbuttons, 0, NUM_APBUTTON_SW);
 
-	switch (command)
+	switch (command.m_command)
 	{
 		COMMAND(AltNNNup);
 		COMMAND(AltNNNdn);
@@ -196,7 +196,7 @@ bool LaminarB744::handleCommand(BaseDeviceHandler::VriCommand command, float val
 	COMMAND(AptApp);
 
 	default:
-		return BaseAircraft::handleCommand(command, value, boost);
+		return BaseAircraft::handleCommand(command);
 	}
 }
 
