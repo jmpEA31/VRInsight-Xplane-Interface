@@ -8,7 +8,13 @@ class ZiboB738 : public LaminarB738
 public:
 	ZiboB738();
 
+	bool handleCommand(BaseDeviceHandler::VriCommandParameters command) override;
+
 	static bool isLoaded();
+
+protected:
+	XPLMCommandRef m_refAltNNNup;
+	XPLMCommandRef m_refAltNNNdn;
 };
 
 #endif
