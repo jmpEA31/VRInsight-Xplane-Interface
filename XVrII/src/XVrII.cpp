@@ -17,7 +17,7 @@
 #include "SsgB748.h"
 
 static char *g_ident1 = "VrII";
-static char *g_ident2 = "0.04";
+static char *g_ident2 = "v0.5";
 
 void scanForVRiDevices();
 void scanUserPlane();
