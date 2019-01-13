@@ -176,7 +176,7 @@ bool LaminarB744::handleCommand(BaseDeviceHandler::VriCommandParameters command)
 	COMMAND(AptN1);
 	COMMAND(AptFlch);
 	COMMAND(AptSpd);
-	COMMAND(AptHdgSel);
+//	COMMAND(AptHdgSel);
 	COMMAND(AptHdgHold);
 	COMMAND(AptAltHold);
 	COMMAND(AptVvsHold);

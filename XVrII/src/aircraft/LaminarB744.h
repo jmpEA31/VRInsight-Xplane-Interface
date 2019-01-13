@@ -49,7 +49,7 @@ protected:
 	XPLMCommandRef m_refAptSpd;
 	XPLMCommandRef m_refAptFlch;
 
-	XPLMCommandRef m_refAptHdgSel;
+//	XPLMCommandRef m_refAptHdgSel;
 	XPLMCommandRef m_refAptHdgHold;
 	XPLMCommandRef m_refAptAltHold;
 	XPLMCommandRef m_refAptVvsHold;

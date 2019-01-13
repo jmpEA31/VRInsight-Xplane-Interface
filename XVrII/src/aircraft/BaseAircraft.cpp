@@ -483,34 +483,36 @@ CommandQueue *BaseAircraft::queuedCommands()
 
 void BaseAircraft::efisZoomIn()
 {
-	m_efisZoomStepTracker--;
-	if (m_efisZoomStepTracker == -2)
-	{
-		m_efisZoomStepTracker = 0;
+	//m_efisZoomStepTracker--;
+	//if (m_efisZoomStepTracker == -2)
+	//{
+	//	m_efisZoomStepTracker = 0;
 		scheduleCommand(m_refEfisZoomIn);
-	}
+	//}
 }
 
 void BaseAircraft::efisZoomOut()
 {
-	m_efisZoomStepTracker++;
-	if (m_efisZoomStepTracker == 2)
-	{
-		m_efisZoomStepTracker = 0;
+	//m_efisZoomStepTracker++;
+	//if (m_efisZoomStepTracker == 2)
+	//{
+	//	m_efisZoomStepTracker = 0;
 		scheduleCommand(m_refEfisZoomOut);
-	}
+	//}
 }
 
 void BaseAircraft::efisModeUp()
 {
-	m_efisModeStepTracker++;
-	handleEfisMode(true);
+	scheduleCommand(m_refEfisModeUp);
+	//m_efisModeStepTracker++;
+	//handleEfisMode(true);
 }
 
 void BaseAircraft::efisModeDown()
 {
-	m_efisModeStepTracker--;
-	handleEfisMode(false);
+	scheduleCommand(m_refEfisModeDown);
+	//m_efisModeStepTracker--;
+	//handleEfisMode(false);
 }
 
 void BaseAircraft::handleEfisMode(bool up)
