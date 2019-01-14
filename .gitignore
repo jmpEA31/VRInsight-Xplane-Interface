@@ -7,6 +7,7 @@ XPSDK/*
 !XPSDK/extract_the_xplane_sdk_here.txt
 
 VrInsightPlugin/\.vs/
+VrInsightPlugin/x64/*
 
 *.db
 
@@ -17,5 +18,14 @@ PluginHost/x64/
 Output/*
 !Output/plugin_files_go_here.txt
 
+TestFramework/VrIITester/x64/*
+TestFramework/XPLM_stub/x64/*
+
 
 *.opendb
+
+*.pdb
+
+*.tlog
+
+*.cache
