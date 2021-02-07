@@ -69,6 +69,7 @@ BaseDeviceHandler::VriCommandParameters FMERDeviceHandler::a(char *message, VriC
 		else if (strncmp("MAST+", subcmd, 5) == 0) command.m_command = AptMasterConnect;
 		else if (strncmp("MAST-", subcmd, 5) == 0) command.m_command = AptMasterDisconnect;
 		else if (strncmp("TOGA", subcmd, 4) == 0) command.m_command = AptToGa;				// combines TOGA+, TOGA-, TOGN+, TOGN-
+		else if (strncmp("TOGN", subcmd, 4) == 0) command.m_command = AptToGa;				// combines TOGA+, TOGA-, TOGN+, TOGN-
 		else if (strncmp("VNAV", subcmd, 4) == 0) command.m_command = AptVNav;				// combines VNAV+ and VNAV-
 	}
 	
