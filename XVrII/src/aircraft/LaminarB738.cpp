@@ -122,5 +122,5 @@ bool LaminarB738::handleCommand(BaseDeviceHandler::VriCommandParameters command)
 
 bool LaminarB738::isLoaded()
 {
-	return (XPLMFindDataRef("laminar/B738/autopilot/autothrottle_arm_pos") != nullptr);
+	return (XPLMFindDataRef("laminar/B738/irs_left1") != nullptr);
 }

@@ -13,8 +13,8 @@ public:
 	static bool isLoaded();
 
 protected:
-	XPLMCommandRef m_refAltNNNup;
-	XPLMCommandRef m_refAltNNNdn;
+	XPLMCommandRef m_refHdgNNNup;
+	XPLMCommandRef m_refHdgNNNdn;
 };
 
 #endif
